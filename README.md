@@ -1,5 +1,5 @@
 # pacific-app
 
 Dependencies:
-PyQt6
+dearpygui
 python-docx
