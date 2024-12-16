@@ -12,24 +12,47 @@ import dearpygui.dearpygui as dpg
 # - later: transmittals should be able to be created from here
 # - should be able to filter table, group by vendor,
 
+# select  all  options
+# all
+# by vendor
 
-def add_new_row(table_tag:int | str, spec_data:dict):
-    with dpg.table_row(parent="spec_table"):
+def add_new_row(spec_data:dict):
+    table_row_tags = dpg.get_item_children("SpecTable")[1] # col 1  
+
+    with dpg.table_row(parent="SpecTable") as table_row_tag:
 
         for j in range(0, 9):
             if j == 0:
-                dpg.add_text(f"{1}")
+                dpg.add_text(f"{len(table_row_tags)+1}")
             elif j == 1: # row num
                 dpg.add_checkbox()
             else:
                 input_text_tag = dpg.add_input_text(width=-1)
-                dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
+                # dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
+
+    print(table_row_tags)
 
 def delete_row(table_row_tag:int):
-    row_tags = dpg.get_item_children("spec_table")[1]
+    row_tags = dpg.get_item_children("SpecTable")[1]
 
     if row_tags:
         dpg.delete_item(row_tags[-1])
+
+def toggle_rows(id, value):
+    # print(id, value)
+
+    filter = dpg.get_value("toggle_select")
+
+
+
+
+    print(value, filter)
+
+    # get the  current value of this checkbox - DONE
+    # get the value of   the combo box  - DONE
+    # get all row ids
+    # go through all rows and toggle on/off based on combo selection
+    pass
 
 dpg.create_context()
 dpg.create_viewport(title='Pacific Carpets', width=1200, height=800)
@@ -37,40 +60,19 @@ dpg.create_viewport(title='Pacific Carpets', width=1200, height=800)
 with dpg.window(tag="primary_window"):
 
     with dpg.group(horizontal=True):
+
+        with dpg.group(horizontal=True):
+            id = dpg.add_checkbox(callback=toggle_rows)
+            print(id)
+            dpg.add_combo(tag="toggle_select", items=["All"],  fit_width=True)
+
         dpg.add_button(label="New Row", callback=add_new_row)
         dpg.add_button(label="Delete Row", callback=delete_row)
 
-    with dpg.table(header_row=True, tag="spec_table") as table_tag:
 
-        table_data = [
-            {
-                "callout": "T-01",
-                "vendor": "Daltile",
-                "style": "Lorem Ipsum",
-                "color": "Beige",
-                "finish": "Polished",
-                "size": "12\"x48\"",
-                "thickness": "8mm",
-            },
-            {
-                "callout": "T-02",
-                "vendor": "Stone Source",
-                "style": "Lorem Ipsum",
-                "color": "Gray",
-                "finish": "Matte",
-                "size": "8\"x8\"",
-                "thickness": "10mm",
-            },
-            {
-                "callout": "T-03",
-                "vendor": "Emser",
-                "style": "Lorem Ipsum",
-                "color": "Absolute Black",
-                "finish": "Honed",
-                "size": "8\"X16\"",
-                "thickness": "9mm",
-            },
-        ]
+        # dpg.add_button(label="selected cells")
+
+    with dpg.table(header_row=True, tag="SpecTable") as table_tag:
 
         # table columns use child slot 0
         dpg.add_table_column(width_fixed=True)
@@ -87,11 +89,11 @@ with dpg.window(tag="primary_window"):
         # once it reaches the end of the columns
         # table next column use slot 1
 
-        def deactivated_handler():
-            print("this cell has been deactivated")
+        # def deactivated_handler(tag):
+        #     print(f"cell {tag} has been deactivated")
 
-        with dpg.item_handler_registry(tag="table_cell_handler"):
-            dpg.add_item_deactivated_handler(callback=deactivated_handler)
+        # with dpg.item_handler_registry(tag="table_cell_handler"):
+        #     dpg.add_item_deactivated_handler(callback=deactivated_handler)
 
         # creating a brand new table
     
@@ -113,6 +115,7 @@ with dpg.window(tag="primary_window"):
 
 def  log_key_press(e, c):
     print("arrow key was pressed")
+    print(dpg.get_active_window())
 
 with dpg.handler_registry():
     dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=log_key_press)
@@ -124,8 +127,39 @@ with dpg.handler_registry():
 dpg.set_primary_window("primary_window", True)
 
 dpg.setup_dearpygui()
-dpg.show_item_registry()
+# dpg.show_item_registry()
 # dpg.show_style_editor()
 dpg.show_viewport()
 dpg.start_dearpygui()
 dpg.destroy_context()
+
+
+# table_data = [
+#     {
+#         "callout": "T-01",
+#         "vendor": "Daltile",
+#         "style": "Lorem Ipsum",
+#         "color": "Beige",
+#         "finish": "Polished",
+#         "size": "12\"x48\"",
+#         "thickness": "8mm",
+#     },
+#     {
+#         "callout": "T-02",
+#         "vendor": "Stone Source",
+#         "style": "Lorem Ipsum",
+#         "color": "Gray",
+#         "finish": "Matte",
+#         "size": "8\"x8\"",
+#         "thickness": "10mm",
+#     },
+#     {
+#         "callout": "T-03",
+#         "vendor": "Emser",
+#         "style": "Lorem Ipsum",
+#         "color": "Absolute Black",
+#         "finish": "Honed",
+#         "size": "8\"X16\"",
+#         "thickness": "9mm",
+#     },
+# ]
