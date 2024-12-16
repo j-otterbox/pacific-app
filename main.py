@@ -6,15 +6,32 @@ import dearpygui.dearpygui as dpg
 # - READ
 # - UPDATE
 # - DELETE (ui only)
+# - TODO: options that can be applied to toggle selections (delete)
 
 # - basic information about the samples is tracked (callout, vendor, style, etc.)
 # - need to track: status, ETA if samples ordered, data gathered
 # - later: transmittals should be able to be created from here
 # - should be able to filter table, group by vendor,
 
-# select  all  options
-# all
-# by vendor
+def get_row_checkbox_ids():
+    table_rows = dpg.get_item_children("spec_table")[1]
+    checkbox_ids = []
+
+    for row in table_rows:
+        checkbox_ids.append(dpg.get_item_children(row)[1][1])
+
+    return checkbox_ids
+
+def toggle_checkbox():
+    checkbox_ids = get_row_checkbox_ids()
+
+    for id in checkbox_ids:
+        if dpg.get_value(id) == True:
+            dpg.configure_item("toggle_select_options", show=True)
+            return
+    dpg.configure_item("toggle_select_options", show=False)
+
+    
 
 def add_new_row(spec_data:dict):
     table_row_tags = dpg.get_item_children("spec_table")[1] # col 1  
@@ -25,12 +42,15 @@ def add_new_row(spec_data:dict):
             if j == 0:
                 dpg.add_text(f"{len(table_row_tags)+1}")
             elif j == 1: # row num
-                dpg.add_checkbox()
+                dpg.add_checkbox(callback=toggle_checkbox)
             else:
                 input_text_tag = dpg.add_input_text(width=-1)
-                # dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
 
-    print(table_row_tags)
+
+
+                dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
+
+    # print(table_row_tags)
 
 def delete_row(table_row_tag:int):
     row_tags = dpg.get_item_children("spec_table")[1]
@@ -38,14 +58,7 @@ def delete_row(table_row_tag:int):
     if row_tags:
         dpg.delete_item(row_tags[-1])
 
-def get_row_checkbox_ids():
-    table_rows = dpg.get_item_children("spec_table")[1]
-    checkbox_ids = []
 
-    for row in table_rows:
-        checkbox_ids.append(dpg.get_item_children(row)[1][1])
-
-    return checkbox_ids
 
 def toggle_rows(item_id, item_value):
     caller_item_type = dpg.get_item_type(item_id)
@@ -67,6 +80,8 @@ def toggle_rows(item_id, item_value):
             for id in checkbox_ids:
                 dpg.set_value(id, False)
 
+            dpg.configure_item("toggle_select_options", show=False)
+
     elif toggle_filter == "All":
 
         if caller_item_type == "mvAppItemType::mvCheckbox":
@@ -74,10 +89,14 @@ def toggle_rows(item_id, item_value):
             for id in checkbox_ids:
                 dpg.set_value(id, toggle_checkbox_value)
 
+            dpg.configure_item("toggle_select_options", show=toggle_checkbox_value)
+
         elif caller_item_type == "mvAppItemType::mvCombo":
             dpg.set_value("toggle_all_checkbox", True)
             for id in checkbox_ids:
                 dpg.set_value(id, True)
+
+            dpg.configure_item("toggle_select_options", show=True)
 
 # ==== BEGIN MAIN ====
 
@@ -90,6 +109,11 @@ with dpg.window(tag="primary_window"):
             dpg.add_checkbox(tag="toggle_all_checkbox", callback=toggle_rows)
             dpg.add_combo(tag="toggle_filter_combo", items=["None", "All"], callback=toggle_rows, default_value="None", fit_width=True)
 
+        with dpg.group(tag="toggle_select_options", show=False, horizontal=True):
+            dpg.add_button(label="Delete Selected")
+            dpg.add_button(label="Create Transmittal")
+
+    with dpg.group(horizontal=True):
         dpg.add_button(label="New Row", callback=add_new_row)
         dpg.add_button(label="Delete Row", callback=delete_row)
 
@@ -110,29 +134,8 @@ with dpg.window(tag="primary_window"):
         # once it reaches the end of the columns
         # table next column use slot 1
 
-        # def deactivated_handler(tag):
-        #     print(f"cell {tag} has been deactivated")
-
         # with dpg.item_handler_registry(tag="table_cell_handler"):
         #     dpg.add_item_deactivated_handler(callback=deactivated_handler)
-
-        # creating a brand new table
-    
-        # if creating the table from existing data
-        # for i in range(0, len(table_data)):
-        #     with dpg.table_row() as row_tag:
-
-        #         dpg.add_text(f"")
-
-        #         for j in range(0, 9):
-        #             if j == 0:
-        #                 dpg.add_text(f"{i+1}")
-        #             elif j == 1: # row num
-        #                 dpg.add_checkbox()
-        #             else:
-        #                 input_text_tag = dpg.add_input_text(width=300)
-        #                 dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
-
 
 def  log_key_press(e, c):
     print("arrow key was pressed")
