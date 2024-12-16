@@ -13,6 +13,13 @@ import dearpygui.dearpygui as dpg
 # - later: transmittals should be able to be created from here
 # - should be able to filter table, group by vendor,
 
+# add a callback to the delete selected btn - OK
+# in this call back, do the following: - n/a
+# get all the checkbox ids
+# create another list to add the ids of the boxes toggled ON
+# go through all the ids and create a sublist
+# delete the rows with those ids
+
 def get_row_checkbox_ids():
     table_rows = dpg.get_item_children("spec_table")[1]
     checkbox_ids = []
@@ -30,8 +37,6 @@ def toggle_checkbox():
             dpg.configure_item("toggle_select_options", show=True)
             return
     dpg.configure_item("toggle_select_options", show=False)
-
-    
 
 def add_new_row(spec_data:dict):
     table_row_tags = dpg.get_item_children("spec_table")[1] # col 1  
@@ -52,13 +57,16 @@ def add_new_row(spec_data:dict):
 
     # print(table_row_tags)
 
+def deleted_selected_rows():
+    checkbox_ids = get_row_checkbox_ids()
+
+    print(checkbox_ids)
+
 def delete_row(table_row_tag:int):
     row_tags = dpg.get_item_children("spec_table")[1]
 
     if row_tags:
         dpg.delete_item(row_tags[-1])
-
-
 
 def toggle_rows(item_id, item_value):
     caller_item_type = dpg.get_item_type(item_id)
@@ -108,9 +116,8 @@ with dpg.window(tag="primary_window"):
         with dpg.group(horizontal=True):
             dpg.add_checkbox(tag="toggle_all_checkbox", callback=toggle_rows)
             dpg.add_combo(tag="toggle_filter_combo", items=["None", "All"], callback=toggle_rows, default_value="None", fit_width=True)
-
         with dpg.group(tag="toggle_select_options", show=False, horizontal=True):
-            dpg.add_button(label="Delete Selected")
+            dpg.add_button(label="Delete Selected", callback=deleted_selected_rows)
             dpg.add_button(label="Create Transmittal")
 
     with dpg.group(horizontal=True):
