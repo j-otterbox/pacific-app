@@ -13,7 +13,6 @@ import dearpygui.dearpygui as dpg
 # - later: transmittals should be able to be created from here
 # - should be able to filter table, group by vendor,
 
-
 def get_row_checkbox_ids():
     table_rows = dpg.get_item_children("spec_table")[1]
     checkbox_ids = []
@@ -53,23 +52,21 @@ def add_new_row(spec_data:dict):
 
 def deleted_selected_rows():
     checkbox_ids = get_row_checkbox_ids()
+    row_idx = 0
 
     # if the row is NOT deleted, adjust its row number in the table
-    for idx, checkbox_id in enumerate(checkbox_ids):
+    for checkbox_id in checkbox_ids:
         parent_id = dpg.get_item_parent(checkbox_id)
 
         if dpg.get_value(checkbox_id) == True: 
             dpg.delete_item(parent_id)
-            checkbox_ids.remove(checkbox_id)
-
-            print(idx)
-
         else:
-            print("item not deleted", idx)
+            row_idx += 1
+            row_idx_cell = dpg.get_item_children(parent_id)[1][0]
+            dpg.set_value(row_idx_cell, row_idx)
+            
+    toggle_checkbox()
     
-
-
-
 def delete_row(table_row_tag:int):
     row_tags = dpg.get_item_children("spec_table")[1]
 
