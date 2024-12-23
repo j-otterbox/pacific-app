@@ -6,6 +6,20 @@ class SpecTable:
         
     def get_current_cell(self):
         return self.current_cell
+    
+    def set_current_cell(self, x:int, y:int):
+        self.current_cell["x"] = x
+        self.current_cell["y"] = y
+        print(self.current_cell)
+
+    def add_row(self):
+        pass
+
+    def delete_row(self):
+        pass
+
+    def delete_rows(self):
+        pass
 
     def shift_current_cell_left(self):
         if self.current_cell["x"] > 2:

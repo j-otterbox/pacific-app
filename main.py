@@ -17,6 +17,19 @@ from Models.SpecTable import SpecTable
 # table data is assigned to the user-data slot of the table
 # the arrow key handler will adjust the current cell
 
+def table_cell_clicked_handler(_, app_data):
+    caller_cell_id = app_data[1]
+    table_data = dpg.get_item_user_data("spec_table")
+    table_row_ids = dpg.get_item_children("spec_table")[1]
+
+    # for row_idx, row_id in enumerate(table_row_ids):
+    #     table_col_ids = list(dpg.get_item_children(row_id)[1])
+    #     try:
+    #         col_idx = table_col_ids.index(caller_cell_id)
+    #         table_data.set_current_cell()
+    #     except ValueError: # if id not found
+    #         continue
+        
 def get_row_checkbox_ids():
     table_rows = dpg.get_item_children("spec_table")[1]
     checkbox_ids = []
@@ -57,10 +70,8 @@ def add_new_row(spec_data:dict):
                 dpg.add_checkbox(callback=toggle_checkbox)
             else:
                 input_text_tag = dpg.add_input_text(width=-1)
-
-
-
                 dpg.bind_item_handler_registry(input_text_tag, "table_cell_handler")
+
 
     # if not current_cell:
     #     current_cell = [0,0]
@@ -157,6 +168,9 @@ with dpg.window(tag="primary_window"):
         dpg.add_table_column(label="Finish")
         dpg.add_table_column(label="Size")
         dpg.add_table_column(label="Thickness")
+
+    with dpg.item_handler_registry(tag="table_cell_handler"):
+        dpg.add_item_clicked_handler(callback=table_cell_clicked_handler)
 
 def is_table_row(item_id):
     return dpg.get_item_type(item_id) == "mvAppItemType::mvTableRow"
