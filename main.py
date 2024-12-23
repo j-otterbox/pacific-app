@@ -1,4 +1,5 @@
 import dearpygui.dearpygui as dpg
+from Models.SpecTable import SpecTable
 
 # - basic database for samples 
 # - TODO: needs CRUD functionality
@@ -13,38 +14,8 @@ import dearpygui.dearpygui as dpg
 # - later: transmittals should be able to be created from here
 # - should be able to filter table, group by vendor,
 
-table_data = {
-    "current_cell": [0,0],
-    "rows": [
-    {
-        "callout": "T-01",
-        "vendor": "Daltile",
-        "style": "Lorem Ipsum",
-        "color": "Beige",
-        "finish": "Polished",
-        "size": "12\"x48\"",
-        "thickness": "8mm",
-    },
-    {
-        "callout": "T-02",
-        "vendor": "Stone Source",
-        "style": "Lorem Ipsum",
-        "color": "Gray",
-        "finish": "Matte",
-        "size": "8\"x8\"",
-        "thickness": "10mm",
-    },
-    {
-        "callout": "T-03",
-        "vendor": "Emser",
-        "style": "Lorem Ipsum",
-        "color": "Absolute Black",
-        "finish": "Honed",
-        "size": "8\"X16\"",
-        "thickness": "9mm",
-    },
-    ]
-}
+# table data is assigned to the user-data slot of the table
+# the arrow key handler will adjust the current cell
 
 def get_row_checkbox_ids():
     table_rows = dpg.get_item_children("spec_table")[1]
@@ -73,7 +44,7 @@ def row_drop_handler():
 def add_new_row(spec_data:dict):
     table_row_tags = dpg.get_item_children("spec_table")[1] # col 1  
 
-    with dpg.table_row(parent="spec_table") as table_row_tag:
+    with dpg.table_row(parent="spec_table"):
 
         for j in range(0, 9):
             if j == 0:
@@ -112,7 +83,7 @@ def deleted_selected_rows():
     toggle_checkbox()
     dpg.set_value("toggle_all_checkbox", False)
     
-def delete_row(table_row_tag:int):
+def delete_row():
     row_tags = dpg.get_item_children("spec_table")[1]
 
     if row_tags:
@@ -169,14 +140,14 @@ with dpg.window(tag="primary_window"):
         with dpg.group(tag="toggle_select_options", show=False, horizontal=True):
             dpg.add_button(label="Delete Selected", callback=deleted_selected_rows)
             dpg.add_button(label="Create Transmittal")
+            dpg.add_button(label="Gather Technical Docs")
 
     with dpg.group(horizontal=True):
         dpg.add_button(label="New Row", callback=add_new_row)
         dpg.add_button(label="Delete Row", callback=delete_row)
+        dpg.add_text(tag="current_cell_text") # keep updated with the current cell
 
-    with dpg.table(header_row=True, tag="spec_table", user_data=table_data) as table_tag:
-
-        # table columns use child slot 0
+    with dpg.table(header_row=True, tag="spec_table", user_data=SpecTable(9)):
         dpg.add_table_column(width_fixed=True)
         dpg.add_table_column(width_fixed=True)
         dpg.add_table_column(label="Callout")
@@ -187,49 +158,36 @@ with dpg.window(tag="primary_window"):
         dpg.add_table_column(label="Size")
         dpg.add_table_column(label="Thickness")
 
-        # add_table_next_column will jump to the next row
-        # once it reaches the end of the columns
-        # table next column use slot 1
+def is_table_row(item_id):
+    return dpg.get_item_type(item_id) == "mvAppItemType::mvTableRow"
 
-        # with dpg.item_handler_registry(tag="table_cell_handler"):
-        #     dpg.add_item_deactivated_handler(callback=deactivated_handler)
+def is_input_field(item_id):
+    return dpg.get_item_type(item_id) == "mvAppItemType::mvInputText"
 
+def key_press_handler():
+    focused_item = dpg.get_focused_item() # x value
+    focused_item_parent = dpg.get_item_parent(focused_item) # y value
 
-def log_key_press(e, c):
-    """ 
-        table user-data shoulda handle the operation of tracking the current cell internally,
-        will have to get parents(rows), and children (cols) to update the active cell after
-        updating the current cell 
-    """
+    if is_input_field(focused_item) and is_table_row(focused_item_parent):
+        table_data = dpg.get_item_user_data("spec_table")
 
+        if dpg.is_key_pressed(dpg.mvKey_Right):
+            table_data.shift_current_cell_right()
+            
+        elif dpg.is_key_pressed(dpg.mvKey_Down):
+            table_data.shift_current_cell_down()
 
-    if dpg.is_key_pressed(dpg.mvKey_Right):
-        print("right arrow pressed")
+        elif dpg.is_key_pressed(key=dpg.mvKey_Left):
+            table_data.shift_current_cell_left()
 
-        x, y = dpg.get_item_user_data("spec_table")["current_cell"]
-    
-        # x value cannot exceed number of columns
-
-    elif dpg.is_key_pressed(dpg.mvKey_Down):
-        print("down arrow pressed")
-
-        # y value cannot exceed number of rows
-
-    elif dpg.is_key_pressed(key=dpg.mvKey_Left):
-        print("left arrow pressed")
-
-        # x value cannot be less than 0
-
-    elif dpg.is_key_pressed(key=dpg.mvKey_Up):
-        print("up arrow pressed")
-
-        # y value cannot be less than 0
+        elif dpg.is_key_pressed(key=dpg.mvKey_Up):
+            table_data.shift_current_cell_up()
 
 with dpg.handler_registry():
-    dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=log_key_press)
-    dpg.add_key_press_handler(key=dpg.mvKey_Down, callback=log_key_press)
-    dpg.add_key_press_handler(key=dpg.mvKey_Left, callback=log_key_press)
-    dpg.add_key_press_handler(key=dpg.mvKey_Up, callback=log_key_press)
+    dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=key_press_handler)
+    dpg.add_key_press_handler(key=dpg.mvKey_Down, callback=key_press_handler)
+    dpg.add_key_press_handler(key=dpg.mvKey_Left, callback=key_press_handler)
+    dpg.add_key_press_handler(key=dpg.mvKey_Up, callback=key_press_handler)
 
 dpg.set_primary_window("primary_window", True)
 
