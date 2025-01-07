@@ -1,7 +1,11 @@
 import dearpygui.dearpygui as dpg
+from hashlib import sha256
+from dotenv import dotenv_values
 
 class Login:
     def __init__(self):
+        self._config = dotenv_values(".env")
+
         with dpg.stage() as self._staging_contrainer_id:
 
             with dpg.table(header_row=False):
@@ -23,15 +27,15 @@ class Login:
 
                 with dpg.table_row(): 
                     dpg.add_text("Username")
-                    dpg.add_input_text(width=-1)
+                    self._username_input_id = dpg.add_input_text(width=-1)
                 with dpg.table_row(): #
                     dpg.add_text("Password")
-                    dpg.add_input_text(password=True, width=-1)
+                    self._password_input_id = dpg.add_input_text(password=True, width=-1)
                 with dpg.table_row(show=False): 
                     with dpg.table_cell():
                         pass
                     with dpg.table_cell():
-                        dpg.add_text("login feedback here")
+                        self._feedback_text_id = dpg.add_text("login feedback here")
                 with dpg.table_row(): 
                     with dpg.table_cell():
                         pass
@@ -42,7 +46,17 @@ class Login:
                             dpg.add_button(label="Exit", callback=self._exit)
 
     def _submit(self):
-        print("submit button pressed")
+        username = dpg.get_value(self._username_input_id)
+        password = dpg.get_value(self._password_input_id)
+
+        bytes = bytearray(password, encoding="utf8")
+        password_hash = sha256(bytes)
+        password_hash_str = password_hash.hexdigest()
+
+        if username == self._config.get("USERNAME") and password_hash_str == self._config.get("PASS_HASH"):
+            print("login successful")
+        else:
+            print("username/password combo incorrect")
 
     def _exit(self):
         print("exit button pressed")
