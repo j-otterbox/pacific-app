@@ -55,12 +55,17 @@ class Login:
 
         if username == self._config.get("USERNAME") and password_hash_str == self._config.get("PASS_HASH"):
             print("login successful")
+            # delete this window and load the dashboard
+
         else:
             print("username/password combo incorrect")
+            # show feedback text to user
+
+        # log date/time and whether it was successful or not
 
     def _exit(self):
         print("exit button pressed")
-
+        # exit the program
 
 dpg.create_context()
 dpg.create_viewport(title='Pacific Carpets', width=360, height=200)
