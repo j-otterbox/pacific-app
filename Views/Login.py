@@ -61,14 +61,11 @@ class Login:
         if self._verify_login(username, password_hash_str):
             dpg.delete_item("primary_window", children_only=True)
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent="primary_window")
-            dpg.set_item_pos(welcome_msg_id, [140, 95])
+            dpg.set_item_pos(welcome_msg_id, [135, 95])
             sleep(2)
             dpg.delete_item("primary_window", children_only=True)
-            dpg.set_viewport_height(800)
-            dpg.set_viewport_width(1200)
 
-            # get all the project names and number of items submitted/approved
-            # create the dashboard and pass it the necessary information
+            # render the dashboard
 
         else:
             dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
