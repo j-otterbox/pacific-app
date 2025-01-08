@@ -1,4 +1,4 @@
-class SpecTable:
+class Table:
     def __init__(self, num_cols:int):
         self.data = []
         self.current_cell = {"x": 2,"y":0} # first two cols are not input texts

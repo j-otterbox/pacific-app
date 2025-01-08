@@ -10,7 +10,6 @@ class Login:
         self._config = dotenv_values(".env")
 
         with dpg.stage() as self._staging_contrainer_id:
-
             with dpg.table(header_row=False):
                 dpg.add_table_column()
                 dpg.add_table_column(width_fixed=True)
@@ -47,6 +46,9 @@ class Login:
                             dpg.add_text(indent=206)
                             dpg.add_button(label="Submit", callback=self._submit)
                             dpg.add_button(label="Exit", callback=self._exit)
+
+    def render_view(self):
+        dpg.unstage(self._staging_contrainer_id)
 
     def _submit(self):
         username = dpg.get_value(self._username_input_id)
@@ -89,8 +91,7 @@ with dpg.texture_registry():
     dpg.add_static_texture(width=width, height=height, default_value=data, tag="pac_c_logo")
 
 with dpg.window(tag="primary_window"):
-    login_window = Login()
-    dpg.unstage(login_window._staging_contrainer_id)
+    Login().render_view()
 
 dpg.set_primary_window("primary_window", True)
 dpg.setup_dearpygui()
