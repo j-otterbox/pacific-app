@@ -1,6 +1,9 @@
 import dearpygui.dearpygui as dpg
 from hashlib import sha256
+from time import sleep
 from dotenv import dotenv_values
+
+# TODO: add logging to this action
 
 class Login:
     def __init__(self):
@@ -31,7 +34,7 @@ class Login:
                 with dpg.table_row(): #
                     dpg.add_text("Password")
                     self._password_input_id = dpg.add_input_text(password=True, width=-1)
-                with dpg.table_row(show=False): 
+                with dpg.table_row(show=False) as self._feedback_text_row_id: 
                     with dpg.table_cell():
                         pass
                     with dpg.table_cell():
@@ -41,7 +44,7 @@ class Login:
                         pass
                     with dpg.table_cell():
                         with dpg.group(horizontal=True):
-                            dpg.add_text(indent=161)
+                            dpg.add_text(indent=206)
                             dpg.add_button(label="Submit", callback=self._submit)
                             dpg.add_button(label="Exit", callback=self._exit)
 
@@ -53,22 +56,32 @@ class Login:
         password_hash = sha256(bytes)
         password_hash_str = password_hash.hexdigest()
 
-        if username == self._config.get("USERNAME") and password_hash_str == self._config.get("PASS_HASH"):
-            print("login successful")
-            # delete this window and load the dashboard
+        if self._verify_login(username, password_hash_str):
+            dpg.delete_item("primary_window", children_only=True)
+            welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent="primary_window")
+            dpg.set_item_pos(welcome_msg_id, [140, 95])
+            sleep(2)
+            dpg.delete_item("primary_window", children_only=True)
+            dpg.set_viewport_height(800)
+            dpg.set_viewport_width(1200)
+
+            # get all the project names and number of items submitted/approved
+            # create the dashboard and pass it the necessary information
 
         else:
-            print("username/password combo incorrect")
-            # show feedback text to user
+            dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
+            dpg.show_item(self._feedback_text_row_id)
 
-        # log date/time and whether it was successful or not
+    def _verify_login(self, username:str, password_hash_str:str):
+        user_match = username == self._config.get("USERNAME")
+        password_hash_match = password_hash_str == self._config.get("PASS_HASH")
+        return user_match and password_hash_match
 
     def _exit(self):
-        print("exit button pressed")
-        # exit the program
+        dpg.destroy_context()
 
 dpg.create_context()
-dpg.create_viewport(title='Pacific Carpets', width=360, height=200)
+dpg.create_viewport(title='Pacific Carpets', width=405, height=200, resizable=False)
 
 width, height, channels, data = dpg.load_image("Assets/pac_c_logo.png")
 
