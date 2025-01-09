@@ -21,14 +21,14 @@ class ProjectExplorerListItem:
     def __init__(self, project_name:str, gc:str, sample_statuses:list, product_data_status:list):
 
         with dpg.staging_container() as self._staging_container_id:
-            with dpg.collapsing_header(label="GC - Project Name"):
+            with dpg.collapsing_header(label=f"{gc} - {project_name}"):
                 with dpg.group(horizontal=True):
-                    dpg.add_button(label="Open", small=True)
+                    dpg.add_button(label="Open", small=True, callback=self._open_project)
                     dpg.add_button(label="Delete", small=True)
                     with dpg.popup(dpg.last_item(), modal=True, mousebutton=dpg.mvMouseButton_Left):
-                        dpg.add_text("Please confirm you want to delete project [PROJECT NAME].")
+                        dpg.add_text(f"Please confirm you want to delete project '{project_name}'.")
                         with dpg.group(horizontal=True, indent=144):
-                            dpg.add_button(label="Yes", width=50)
+                            dpg.add_button(label="Yes", callback=self._delete_project, width=50)
                             dpg.add_button(label="No", width=50)
                         # dpg.add_separator()
                         # dpg.add_checkbox(label="Don't ask me next time")
@@ -43,5 +43,11 @@ class ProjectExplorerListItem:
                 dpg.add_text("Product Data")
                 dpg.add_progress_bar(label="Progress Bar", width=-1, default_value=0.78, overlay="78% Product Data Gathered")
 
-    def _render_view(self):
+    def _open_project(self):
+        print("open project")
+
+    def _delete_project(self):
+        print("delete project")
+
+    def render_view(self):
         dpg.unstage(self._staging_container_id)
