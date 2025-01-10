@@ -18,7 +18,7 @@ import dearpygui.dearpygui as dpg
 
 class ProjectExplorerListItem:
 
-    def __init__(self, project_name:str, gc:str, sample_statuses:list, product_data_status:list):
+    def __init__(self, project_name:str, gc:str, item_data:dict):
 
         with dpg.staging_container() as self._staging_container_id:
             with dpg.collapsing_header(label=f"{gc} - {project_name}"):
