@@ -1,10 +1,16 @@
 import dearpygui.dearpygui as dpg
 
-def load_assets():
-    width, height, channels, data = dpg.load_image("Assets/pac_c_logo.png")
+def load_assets(path:str):
+    width, height, channels, data = dpg.load_image(f"{path}/pac_c_logo.png")
 
     with dpg.texture_registry():
         dpg.add_static_texture(width=width, height=height, default_value=data, tag="pac_c_logo")
+
+if __name__ == "__main__":
+    import sys
+    import os
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '')))
+    from Components.ProjectExplorerListItem import ProjectExplorerListItem
 
 class Dashboard:
     def __init__(self):
@@ -28,7 +34,11 @@ class Dashboard:
                         dpg.add_menu(label="Project Explorer")
                         # provide options to sort and filter + search
 
-                    # project list items go here...
+                    ProjectExplorerListItem("8th & Alameda Studios", "AECOM", {}).render()
+                    ProjectExplorerListItem("East End Studios", "AECOM", {}).render()
+                    ProjectExplorerListItem("San Diego FC", "AECOM", {}).render()
+                    ProjectExplorerListItem("1233 S. Grand", "AECOM", {}).render()
+                    ProjectExplorerListItem("3545 Wilshire", "AECOM", {}).render()
 
                 with dpg.child_window(height=400, menubar=True):
                     with dpg.menu_bar():
@@ -37,10 +47,11 @@ class Dashboard:
     def render_view(self):
         dpg.unstage(self._staging_container_id)
 
-
 dpg.create_context()
 dpg.create_viewport(title='Pacific Carpets', width=800, height=600, resizable=False)
-load_assets()
+
+if __name__ == "__main__": load_assets("../Assets")
+else: load_assets("Assets")
 
 with dpg.window(tag="primary_window"):
     Dashboard().render_view()
