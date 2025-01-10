@@ -39,6 +39,9 @@ load_assets()
 with dpg.window(tag="primary_window"):
     Login().render_view()
 
+with dpg.window(tag="primary_modal", label="Modal Title", height=100, width=200, modal=True):
+    pass
+        
 with dpg.handler_registry():
     dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=key_press_handler)
     dpg.add_key_press_handler(key=dpg.mvKey_Down, callback=key_press_handler)

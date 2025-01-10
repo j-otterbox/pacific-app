@@ -1,4 +1,5 @@
 import dearpygui.dearpygui as dpg
+from BaseView import BaseView
 
 def load_assets(path:str):
     width, height, channels, data = dpg.load_image(f"{path}/pac_c_logo.png")
@@ -11,9 +12,11 @@ if __name__ == "__main__":
     import os
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '')))
     from Components.ProjectExplorerListItem import ProjectExplorerListItem
-
-class Dashboard:
+    
+class Dashboard(BaseView):
     def __init__(self):
+        super().__init__()
+
         with dpg.stage() as self._staging_container_id:
             with dpg.table(header_row=False):
                 dpg.add_table_column()

@@ -2,11 +2,13 @@ import dearpygui.dearpygui as dpg
 from hashlib import sha256
 from time import sleep
 from dotenv import dotenv_values
+from .BaseView import BaseView
 
 # TODO: add logging to this action
 
-class Login:
+class Login(BaseView):
     def __init__(self):
+        super().__init__()
         self._config = dotenv_values(".env")
 
         with dpg.stage() as self._staging_contrainer_id:
@@ -37,7 +39,7 @@ class Login:
                     with dpg.table_cell():
                         pass
                     with dpg.table_cell():
-                        self._feedback_text_id = dpg.add_text("login feedback here")
+                        self._feedback_text_id = dpg.add_text()
                 with dpg.table_row(): 
                     with dpg.table_cell():
                         pass
@@ -59,11 +61,11 @@ class Login:
         password_hash_str = password_hash.hexdigest()
 
         if self._verify_login(username, password_hash_str):
-            dpg.delete_item("primary_window", children_only=True)
+            self._delete_primary_window_children()
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent="primary_window")
             dpg.set_item_pos(welcome_msg_id, [135, 95])
             sleep(2)
-            dpg.delete_item("primary_window", children_only=True)
+            self._delete_primary_window_children()
 
             # render the dashboard
 
