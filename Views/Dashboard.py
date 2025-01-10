@@ -31,18 +31,30 @@ class Dashboard:
             with dpg.group(horizontal=True):
                 with dpg.child_window(height=400, width=325, menubar=True):
                     with dpg.menu_bar():
-                        dpg.add_menu(label="Project Explorer")
-                        # provide options to sort and filter + search
+                        project_explorer_menu_id = dpg.add_menu(label="Project Explorer")
+                        dpg.add_menu_item(label="New Project", parent=project_explorer_menu_id, callback=self._new_project)
+                    
+                        # TODO: provide options to sort and filter + search
 
-                    ProjectExplorerListItem("8th & Alameda Studios", "AECOM", {}).render()
-                    ProjectExplorerListItem("East End Studios", "AECOM", {}).render()
-                    ProjectExplorerListItem("San Diego FC", "AECOM", {}).render()
-                    ProjectExplorerListItem("1233 S. Grand", "AECOM", {}).render()
-                    ProjectExplorerListItem("3545 Wilshire", "AECOM", {}).render()
+                    # for testing
+                    # project_status = {
+                    #     "name": "8th & Alameda",
+                    #     "gc": "AECOM",
+                    #     "ordered": 0.75,
+                    #     "received": 0.65,
+                    #     "shipped": 0.23,
+                    #     "approved": 0.1,
+                    #     "data_gathered": 0.55,
+                    # }
+
+                    # ProjectExplorerListItem(item_data=project_status).render()
 
                 with dpg.child_window(height=400, menubar=True):
                     with dpg.menu_bar():
                         dpg.add_menu(label="What's going on...")
+
+    def _new_project(self):
+        print("I'm a new project.")
 
     def render_view(self):
         dpg.unstage(self._staging_container_id)
