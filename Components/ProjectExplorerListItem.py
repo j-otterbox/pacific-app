@@ -1,21 +1,5 @@
 import dearpygui.dearpygui as dpg
 
-# info needed to create an instance of the class:
-# project name
-# gc
-
-# sample status for the project in 4 possible states
-# - ordered from vendor 
-# - delivered to PC 
-# - shipped to GC
-# - approved by GC 
-
-# pass list of statuses in no particular order for ALL specs
-# pass list of spec data
-
-# prduct data status
-# - product data gathered
-
 class ProjectExplorerListItem:
 
     def __init__(self, item_data:dict):

@@ -29,10 +29,10 @@ class Dashboard:
                         pass
 
             with dpg.group(horizontal=True):
-                with dpg.child_window(height=400, width=325, menubar=True):
+                with dpg.child_window(height=400, width=325, menubar=True) as project_explorer_window_id:
                     with dpg.menu_bar():
-                        project_explorer_menu_id = dpg.add_menu(label="Project Explorer")
-                        dpg.add_menu_item(label="New Project", parent=project_explorer_menu_id, callback=self._new_project)
+                        menu_id = dpg.add_menu(label="Project Explorer")
+                        dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project)
                     
                         # TODO: provide options to sort and filter + search
 
