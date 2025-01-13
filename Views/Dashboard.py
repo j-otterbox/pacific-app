@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 from .BaseView import BaseView
+from Components.NewProjectForm import NewProjectForm
     
 class Dashboard(BaseView):
     def __init__(self):
@@ -27,30 +28,6 @@ class Dashboard(BaseView):
                             dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project_btn_handler)
                         
                             # TODO: provide options to sort and filter + search
-                        
-                        with dpg.window(label="New Project", modal=True, show=False) as self._new_project_modal_id:
-                            with dpg.group(horizontal=True, horizontal_spacing=15):
-                                with dpg.group(horizontal=True):
-                                    dpg.add_text("ID")
-                                    dpg.add_input_text(decimal=True, width=60)
-                                with dpg.group(horizontal=True):
-                                    dpg.add_text("Name")
-                                    dpg.add_input_text(width=227)
-                            with dpg.group(horizontal=True, horizontal_spacing=25):
-                                with dpg.group(horizontal=True):
-                                    dpg.add_text("GC")
-                                    dpg.add_combo(["", "Fairfield", "Holland", "W.E. O'Neil"], width=130)
-                                    dpg.add_button(label="Manage GCs")
-                                with dpg.group(horizontal=True):
-                                    dpg.add_text("PM")
-                                    dpg.add_combo(["", "Clint", "Lisa", "Michael", "Jermey", "Rob", "Rymmy"], width=75)
-
-                            dpg.add_separator()
-
-                            with dpg.group(horizontal=True, indent=251):
-                                dpg.add_button(label="Create")
-                                dpg.add_button(label="Cancel")
-
                             # label
 
                         # for testing
@@ -70,13 +47,22 @@ class Dashboard(BaseView):
                         with dpg.menu_bar():
                             dpg.add_menu(label="What's going on...")
 
-                    
+                    with dpg.window(label="New Project", modal=True, show=False) as self._new_project_modal_id:
+
+                        # make the NewProjectForm class obj an attribute of the dashboard class
+
+                        # the new project class should expose the functions needed for it to work with parent items
+                        # -> getting the data from it
+                        # -> resetting the form after submission
+                        # -> when a new item is created, return the state of the operation to update the project explorer with the new item
+
+                        NewProjectForm().render()
 
     def _new_project_btn_handler(self):
         dpg.show_item(self._new_project_modal_id)
 
     def _new_project_cancel_btn_handler(self):
-        dpg.hide_item(self._new_project_modal_id)
+        pass
 
     def render_view(self):
         dpg.move_item(self._dashboard_group_id, parent=self._primary_window)
