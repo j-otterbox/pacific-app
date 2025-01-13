@@ -3,6 +3,7 @@ from hashlib import sha256
 from time import sleep
 from dotenv import dotenv_values
 from .BaseView import BaseView
+from .Dashboard import Dashboard
 
 # TODO: add logging to this action
 
@@ -60,14 +61,15 @@ class Login(BaseView):
         password_hash = sha256(bytes)
         password_hash_str = password_hash.hexdigest()
 
-        if self._verify_login(username, password_hash_str):
+        if self._verify_login(username, password_hash_str) or True: # use during development only
             self._delete_primary_window_children()
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent="primary_window")
             dpg.set_item_pos(welcome_msg_id, [135, 95])
             sleep(2)
             self._delete_primary_window_children()
-
-            # render the dashboard
+            dpg.set_viewport_width(600)
+            dpg.set_viewport_height(400)
+            Dashboard().render_view()
 
         else:
             dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")

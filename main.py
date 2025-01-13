@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 from Views.Login import Login
+from Views.Dashboard import Dashboard
 
 def is_table_row(item_id):
     return dpg.get_item_type(item_id) == "mvAppItemType::mvTableRow"
@@ -38,9 +39,6 @@ load_assets()
 
 with dpg.window(tag="primary_window"):
     Login().render_view()
-
-with dpg.window(tag="primary_modal", label="Modal Title", height=100, width=200, modal=True):
-    pass
         
 with dpg.handler_registry():
     dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=key_press_handler)
