@@ -5,6 +5,8 @@ from Components.NewProjectForm import NewProjectForm
 class Dashboard(BaseView):
     def __init__(self):
         super().__init__()
+        self._new_project_form = NewProjectForm()
+        self._new_project_form.set_submit_callback(self._create_new_project)
 
         with dpg.stage():
             with dpg.group() as self._dashboard_group_id:
@@ -25,7 +27,7 @@ class Dashboard(BaseView):
                     with dpg.child_window(height=400, width=325, menubar=True) as project_explorer_window_id:
                         with dpg.menu_bar():
                             menu_id = dpg.add_menu(label="Project Explorer")
-                            dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project_btn_handler)
+                            dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._show_new_project_form)
                         
                             # TODO: provide options to sort and filter + search
                             # label
@@ -47,19 +49,15 @@ class Dashboard(BaseView):
                         with dpg.menu_bar():
                             dpg.add_menu(label="What's going on...")
 
-                    with dpg.window(label="New Project", modal=True, show=False) as self._new_project_modal_id:
+                    with dpg.window(label="New Project", modal=True, show=False, on_close=self._new_project_form.clear) as self._modal_id:
+                        self._new_project_form.render(parent=self._modal_id)
 
-                        # make the NewProjectForm class obj an attribute of the dashboard class
+    def _show_new_project_form(self):
+        dpg.show_item(self._modal_id)
 
-                        # the new project class should expose the functions needed for it to work with parent items
-                        # -> getting the data from it
-                        # -> resetting the form after submission
-                        # -> when a new item is created, return the state of the operation to update the project explorer with the new item
-
-                        NewProjectForm().render()
-
-    def _new_project_btn_handler(self):
-        dpg.show_item(self._new_project_modal_id)
+    def _create_new_project(self):
+        values = self._new_project_form.get_values()
+        self._new_project_form.clear()
 
     def _new_project_cancel_btn_handler(self):
         pass
