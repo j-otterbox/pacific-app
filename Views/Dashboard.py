@@ -49,15 +49,18 @@ class Dashboard(BaseView):
                         with dpg.menu_bar():
                             dpg.add_menu(label="What's going on...")
 
-                    with dpg.window(label="New Project", modal=True, show=False, on_close=self._new_project_form.clear) as self._modal_id:
+                    with dpg.window(label="New Project", modal=True, show=False, autosize=True, on_close=self._new_project_form.clear) as self._modal_id:
                         self._new_project_form.render(parent=self._modal_id)
 
     def _show_new_project_form(self):
         dpg.show_item(self._modal_id)
 
     def _create_new_project(self):
-        values = self._new_project_form.get_values()
-        self._new_project_form.clear()
+        if self._new_project_form.is_filled_out():
+            new_project_data = self._new_project_form.get_values()
+            self._new_project_form.clear()
+        else:
+            self._new_project_form.show_feedback()
 
     def _new_project_cancel_btn_handler(self):
         pass

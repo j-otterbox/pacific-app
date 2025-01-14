@@ -65,7 +65,7 @@ class Login(BaseView):
             self._delete_primary_window_children()
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent="primary_window")
             dpg.set_item_pos(welcome_msg_id, [135, 95])
-            sleep(2)
+            # sleep(2)
             self._delete_primary_window_children()
             dpg.set_viewport_width(600)
             dpg.set_viewport_height(400)
