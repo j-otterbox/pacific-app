@@ -1,11 +1,14 @@
 import dearpygui.dearpygui as dpg
-from .ProjectExplorerListItem import ProjectExplorerListItem
+from .ProjectListItem import ProjectListItem
+
+# TODO: when form is submitted, item is added to list
+# TODO: get gc manager to work
 
 class NewProjectModal:
     def __init__(self, projects_list:int|str):
         self.__projects_list = projects_list
 
-        with dpg.window(label="New Project", modal=True, show=False, autosize=True, on_close=self.__clear) as self.__modal_id:
+        with dpg.window(label="New Project", modal=True, show=False, autosize=True, on_close=self.__clear) as self.__id:
             with dpg.group(horizontal=True, horizontal_spacing=15):
                 with dpg.group(horizontal=True):
                     self._id_field_label_id = dpg.add_text("ID")
@@ -33,7 +36,7 @@ class NewProjectModal:
     # private methods
 
     def __cancel(self):
-        dpg.hide_item(self.__modal_id)
+        dpg.hide_item(self.__id)
         self.__clear()
 
     def __get_field_ids(self):
@@ -51,9 +54,11 @@ class NewProjectModal:
         if self.__is_filled_out():
             form_values = self.__get_values()
             # create a new project explorer list item and pass it the project explorer list id
-            print(self.__projects_list_id)
+
+            ProjectListItem(self.__projects_list, form_values["name"], form_values["gc"])
 
             self.__clear()
+            self.__hide()
         else:
             self.__show_feedback()
 
@@ -88,7 +93,10 @@ class NewProjectModal:
 
         dpg.show_item(self._feedback_text_id)
 
+    def __hide(self):
+        dpg.hide_item(self.__id)
+
     # public methods
 
     def show(self):
-        dpg.show_item(item=self.__modal_id)
+        dpg.show_item(item=self.__id)
