@@ -4,24 +4,27 @@ from .ProjectListItem import ProjectListItem
 class NewProjectModal:
     def __init__(self, projects_list:int|str):
         self.__projects_list = projects_list
+        self.__width = 244
 
-        with dpg.window(label="New Project", show=False, autosize=True, on_close=self.__clear) as self.__id:
+        with dpg.window(label="New Project", width=self.__width, modal=True, show=False, autosize=True, no_collapse=True, on_close=self.__clear) as self.__id:
             with dpg.group() as self.__new_project_form:
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
-                        self._id_field_label_id = dpg.add_text("ID")
-                        self._id_field_id = dpg.add_input_text(decimal=True, width=60)
+                        dpg.add_text("ID")
+                        dpg.add_input_text(decimal=True, indent=36, width=55)
+                    with dpg.group(horizontal=True):
+                        self._pm_field_label_id = dpg.add_text("PM")
+                        self._pm_field_id = dpg.add_combo(["", "Clint", "Lisa", "Michael", "Jermey", "Rob", "Rymmy"], width=80)
+
+                with dpg.group(horizontal=True):
+                    self._gc_field_label_id = dpg.add_text("GC")
+                    self._gc_field_id = dpg.add_combo(["", "Fairfield", "Holland", "W.E. O'Neil"], indent=36, width=140)
+                    dpg.add_button(label="Manage GCs", callback=self.__render_gc_manager)
+
+                with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
                         self._name_field_label_id = dpg.add_text("Name")
                         self._name_field_id = dpg.add_input_text(width=227)
-                with dpg.group(horizontal=True, horizontal_spacing=25):
-                    with dpg.group(horizontal=True):
-                        self._gc_field_label_id = dpg.add_text("GC")
-                        self._gc_field_id = dpg.add_combo(["", "Fairfield", "Holland", "W.E. O'Neil"], width=130)
-                        dpg.add_button(label="Manage GCs", callback=self.__render_gc_manager)
-                    with dpg.group(horizontal=True):
-                        self._pm_field_label_id = dpg.add_text("PM")
-                        self._pm_field_id = dpg.add_combo(["", "Clint", "Lisa", "Michael", "Jermey", "Rob", "Rymmy"], width=75)
 
                 self._feedback_text_id = dpg.add_text("Please make sure all fields have values entered.", color=(220,53,69), show=False)
 
@@ -56,6 +59,9 @@ class NewProjectModal:
                     dpg.add_button(label="Edit", width=55, callback=self.__edit_btn_handler)
                     dpg.add_button(label="Delete", width=55, callback=self.__delete_btn_handler)
                     dpg.add_button(label="Back", width=55, callback=self.__back_btn_handler)
+
+        # dpg.split_frame()
+
 
     def __cancel(self):
         dpg.hide_item(self.__id)
@@ -96,7 +102,6 @@ class NewProjectModal:
             dpg.show_item(self.__new_project_form)
             dpg.hide_item(self.__gc_manager)
 
-
     def __is_filled_out(self):
         field_ids = self.__get_field_ids()
         for field, _ in field_ids:
@@ -126,8 +131,25 @@ class NewProjectModal:
         dpg.hide_item(self.__id)
 
     def show(self):
-        dpg.show_item(item=self.__id)
+        dpg.set_item_pos(self.__id, [self.__width, 0])
+        dpg.show_item(self.__id)
 
+        # with dpg.mutex(): # nothing happens until this is done
+        #     dpg.show_item(self.__id)
+
+        # dpg.split_frame()
+        # x = int((dpg.get_viewport_width() - dpg.get_item_width(self.__id))/2)
+        # y = int((dpg.get_viewport_height() - dpg.get_item_height(self.__id))/2)
+
+        # print(x,y)
+
+        # # dpg.set_item_pos(self.__id, [x,y])
+        # # dpg.set_item_pos(self.__id, [100,200])
+
+        # # dpg.split_frame() # guarantee this happens in another frame
+
+        
+        
     def __add_btn_handler(self):
         dpg.show_item(self.__add_gc_window)
 
