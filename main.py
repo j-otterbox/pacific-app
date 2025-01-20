@@ -12,10 +12,10 @@ dpg.create_context()
 dpg.create_viewport(title='Pacific Carpets', width=405, height=200, resizable=False)
 load_assets()
 
-with dpg.window(tag="primary_window"):
-    Login().render_view()
-
-dpg.set_primary_window("primary_window", True)
+with dpg.window() as primary_window:
+    dpg.set_primary_window(primary_window, True)
+    Login(primary_window)
+    
 dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.start_dearpygui()
