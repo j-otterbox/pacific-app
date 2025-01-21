@@ -4,9 +4,10 @@ from .ProjectListItem import ProjectListItem
 class NewProjectModal:
     def __init__(self, projects_list:int|str):
         self.__projects_list = projects_list
-        self.__width = 244
+        self.__width = 322
+        self.__height = 127
 
-        with dpg.window(label="New Project", width=self.__width, modal=True, show=False, autosize=True, no_collapse=True, on_close=self.__clear) as self.__id:
+        with dpg.window(label="New Project", width=self.__width, show=False, autosize=True, no_collapse=True, no_move=True, on_close=self.__clear) as self.__id:
             with dpg.group() as self.__new_project_form:
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
@@ -18,24 +19,24 @@ class NewProjectModal:
 
                 with dpg.group(horizontal=True):
                     self._gc_field_label_id = dpg.add_text("GC")
-                    self._gc_field_id = dpg.add_combo(["", "Fairfield", "Holland", "W.E. O'Neil"], indent=36, width=140)
+                    self._gc_field_id = dpg.add_combo(["", "Fairfield", "Holland", "W.E. O'Neil"], indent=36, width=184)
                     dpg.add_button(label="Manage GCs", callback=self.__render_gc_manager)
 
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
                         self._name_field_label_id = dpg.add_text("Name")
-                        self._name_field_id = dpg.add_input_text(width=227)
+                        self._name_field_id = dpg.add_input_text(width=270)
 
-                self._feedback_text_id = dpg.add_text("Please make sure all fields have values entered.", color=(220,53,69), show=False)
+                self._feedback_text_id = dpg.add_text("Please make sure all fields are entered.", color=(220,53,69), show=False)
 
                 dpg.add_separator()
 
-                with dpg.group(horizontal=True, indent=251):
+                with dpg.group(horizontal=True, indent=198):
                     self._submit_btn_id = dpg.add_button(label="Create", callback=self.__submit)
                     self._cancel_btn_id = dpg.add_button(label="Cancel", callback=self.__cancel)
 
             with dpg.group(horizontal=True, show=False) as self.__gc_manager:
-                with dpg.child_window(width=250, height=100):
+                with dpg.child_window(width=240, height=200):
 
                     items = (
                         dpg.add_selectable(label="AECOM"),
@@ -50,7 +51,7 @@ class NewProjectModal:
 
                 with dpg.child_window(border=False, height=200):
                     dpg.add_button(label="Add", width=55, callback=self.__add_btn_handler)
-                    with dpg.window(label="Add New GC", show=False) as self.__add_gc_window:
+                    with dpg.window(label="Add New GC", modal=True, show=False) as self.__add_gc_window:
                         with dpg.group(horizontal=True):
                             dpg.add_text("Name")
                             dpg.add_input_text()
@@ -59,9 +60,6 @@ class NewProjectModal:
                     dpg.add_button(label="Edit", width=55, callback=self.__edit_btn_handler)
                     dpg.add_button(label="Delete", width=55, callback=self.__delete_btn_handler)
                     dpg.add_button(label="Back", width=55, callback=self.__back_btn_handler)
-
-        # dpg.split_frame()
-
 
     def __cancel(self):
         dpg.hide_item(self.__id)
@@ -76,10 +74,14 @@ class NewProjectModal:
         ]
 
     def __render_gc_manager(self):
+        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+        y = int((dpg.get_viewport_height()/2) - (235/2))
+
         dpg.hide_item(self.__new_project_form)
         self.__set_title("GC Manager")
         dpg.show_item(self.__gc_manager)
-        
+        dpg.set_item_pos(self.__id, [x,y])
+    
     def __submit(self):
         if self.__is_filled_out():
             form_values = self.__get_values()
@@ -101,6 +103,7 @@ class NewProjectModal:
         if not dpg.is_item_visible(self.__new_project_form):
             dpg.show_item(self.__new_project_form)
             dpg.hide_item(self.__gc_manager)
+            self.__set_title("New Project")
 
     def __is_filled_out(self):
         field_ids = self.__get_field_ids()
@@ -131,25 +134,12 @@ class NewProjectModal:
         dpg.hide_item(self.__id)
 
     def show(self):
-        dpg.set_item_pos(self.__id, [self.__width, 0])
+        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+        y = int((dpg.get_viewport_height()/2) - (self.__height/2))
+
+        dpg.set_item_pos(self.__id, [x, y])
         dpg.show_item(self.__id)
 
-        # with dpg.mutex(): # nothing happens until this is done
-        #     dpg.show_item(self.__id)
-
-        # dpg.split_frame()
-        # x = int((dpg.get_viewport_width() - dpg.get_item_width(self.__id))/2)
-        # y = int((dpg.get_viewport_height() - dpg.get_item_height(self.__id))/2)
-
-        # print(x,y)
-
-        # # dpg.set_item_pos(self.__id, [x,y])
-        # # dpg.set_item_pos(self.__id, [100,200])
-
-        # # dpg.split_frame() # guarantee this happens in another frame
-
-        
-        
     def __add_btn_handler(self):
         dpg.show_item(self.__add_gc_window)
 
@@ -160,9 +150,14 @@ class NewProjectModal:
         print("delete gc")
 
     def __back_btn_handler(self):
+        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+        y = int((dpg.get_viewport_height()/2) - (self.__height/2))
+
         dpg.hide_item(self.__gc_manager)
         self.__set_title("New Project")
+        dpg.set_item_pos(self.__id, [x, y])
         dpg.show_item(self.__new_project_form)
+        
 
     def __selection(self, sender, app_data, user_data):
         for item in user_data:
