@@ -10,8 +10,8 @@ class NewProjectModal:
             with dpg.group() as self.__new_project_form:
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
-                        dpg.add_text("ID")
-                        dpg.add_input_text(decimal=True, indent=36, width=55)
+                        self._id_field_label_id = dpg.add_text("ID")
+                        self._id_field_id = dpg.add_input_text(decimal=True, indent=36, width=55)
                     with dpg.group(horizontal=True):
                         self._pm_field_label_id = dpg.add_text("PM")
                         self._pm_field_id = dpg.add_combo(["", "Clint", "Lisa", "Michael", "Jermey", "Rob", "Rymmy"], width=80)
