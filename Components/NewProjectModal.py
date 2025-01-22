@@ -8,9 +8,8 @@ class NewProjectModal:
         self.__height = 127
         self.__pms = ["Clint", "Lisa", "Michael", "Jermey", "Rob", "Rymmy"]
         self.__gcs = ["AECOM", "Build Group", "C.W. Driver", "Fairfield", "Hanover"] # get from db in prod
-        self.__select = ""
 
-        with dpg.window(label="Create New Project", width=self.__width, autosize=True, min_size=[322, 80], modal=True, no_collapse=True, on_close=self.__reset_form, show=False) as self.__id:
+        with dpg.window(label="Create New Project", width=self.__width, autosize=True, min_size=[322, 80], modal=True, no_collapse=True, on_close=self.__reset_modal, show=False) as self.__id:
             with dpg.group() as self.__new_project_form:
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
@@ -39,28 +38,29 @@ class NewProjectModal:
                     self._cancel_btn_id = dpg.add_button(label="Cancel", callback=self.__cancel)
 
             with dpg.group(horizontal=True, show=False) as self.__gcm:
-                with dpg.child_window(width=240, height=200) as self.__gc_list:
+                with dpg.child_window(width=240, height=200) as self.__gcm_list:
                     for gc in self.__gcs:
-                        dpg.add_selectable(label=gc, callback=self.__selection, user_data=gc)
+                        dpg.add_selectable(label=gc, callback=self.__on_gcm_list_selection, user_data=gc)
 
                 with dpg.child_window(border=False, height=200):
-                    dpg.add_button(label="Add", callback=self.__render_gcm_input, user_data="add_btn", width=55)
-                    dpg.add_button(label="Edit", callback=self.__render_gcm_input, enabled=False, user_data="edit_btn", width=55)
-                    dpg.add_button(label="Delete", callback=self.__delete_gc, enabled=False, width=55)
+                    self.__gcm_add_btn = dpg.add_button(label="Add", callback=self.__render_gcm_form, width=55)
+                    self.__gcm_edit_btn = dpg.add_button(label="Edit", callback=self.__render_gcm_form, enabled=False, width=55)
+                    self.__gcm_delete_btn = dpg.add_button(label="Delete", callback=self.__on_gcm_delete_btn_click, enabled=False, width=55)
                     dpg.add_button(label="Back", callback=self.__render_new_project_form, width=55)
 
-            with dpg.group(show=False) as self.__gcm_input:
+            with dpg.group(show=False) as self.__gcm_form:
                 with dpg.group(horizontal=True):
-                    dpg.add_text("GC")
-                    dpg.add_input_text(width=284)
+                    dpg.add_text("Name")
+                    self.__gcm_text_input = dpg.add_input_text(width=270)
+                self.__gcm_form_feedback = dpg.add_text(color=(220,53,69), show=False)
                 dpg.add_separator()
                 with dpg.group(horizontal=True, indent=188):
-                    dpg.add_button(label="Save", width=55)
+                    self.__gcm_form_submit_btn = dpg.add_button(label="Save", callback=self.__on_gcm_form_submit, width=55)
                     dpg.add_button(label="Back", callback=self.__render_gcm, width=55)
 
     def __cancel(self):
         dpg.hide_item(self.__id)
-        self.__reset_form()
+        self.__reset_modal()
 
     def __get_fields(self):
         return [
@@ -76,8 +76,8 @@ class NewProjectModal:
 
         dpg.set_item_pos(self.__id, [x,y])
         dpg.hide_item(self.__new_project_form)
-        dpg.hide_item(self.__gcm_input)
-        self.__set_title("GC Manager")
+        dpg.hide_item(self.__gcm_form)
+        self.__set_modal_title("GC Manager")
         dpg.show_item(self.__gcm)
 
     def __submit(self):
@@ -87,12 +87,12 @@ class NewProjectModal:
 
             ProjectListItem(self.__projects_list, form_values["name"], form_values["gc"])
 
-            self.__reset_form()
+            self.__reset_modal()
             self.__hide()
         else:
             self.__show_feedback()  
 
-    def __reset_form(self):
+    def __reset_modal(self):
         field_ids = self.__get_fields()
         for field, label in field_ids:
             dpg.set_value(field, "")
@@ -101,11 +101,11 @@ class NewProjectModal:
         
         if not dpg.is_item_visible(self.__new_project_form):
             dpg.hide_item(self.__gcm)
-            dpg.hide_item(self.__gcm_input)
-            self.__set_title("Create New Project")
+            dpg.hide_item(self.__gcm_form)
+            self.__set_modal_title("Create New Project")
             dpg.show_item(self.__new_project_form)
 
-    def __is_filled_out(self):
+    def __is_filled_out(self): 
         field_ids = self.__get_fields()
         for field, _ in field_ids:
             if dpg.get_value(field) == "": return False
@@ -140,36 +140,94 @@ class NewProjectModal:
         dpg.set_item_pos(self.__id, [x, y])
         dpg.show_item(self.__id)
 
-    def __render_gcm_input(self, sender, app_data, user_data):
-        if user_data == "add_btn":
-            self.__set_title("Add GC")
-        elif user_data == "edit_btn":
-            self.__set_title("Edit GC")
+    def __render_gcm_form(self, sender):
+        if sender == self.__gcm_add_btn:
+            self.__set_modal_title("Add GC")
+            dpg.set_value(self.__gcm_text_input, "")
+            dpg.set_item_user_data(self.__gcm_form_submit_btn, "add")
 
+        elif sender == self.__gcm_edit_btn:
+            self.__set_modal_title("Edit GC")
+            items = dpg.get_item_children(self.__gcm_list)[1]
+            for item in items: 
+                if dpg.get_value(item):
+                    dpg.set_value(self.__gcm_text_input, dpg.get_item_user_data(item))
+                    break
+            dpg.set_item_user_data(self.__gcm_form_submit_btn, "edit")
+                
         dpg.hide_item(self.__gcm)
-        dpg.show_item(self.__gcm_input)
+        dpg.show_item(self.__gcm_form)
 
-    def __delete_gc(self):
-        print("delete gc")
+    def __on_gcm_delete_btn_click(self):
+        pass
+        # get the selected item value
+        # self.__gcs.remove()
+        # update the list ui
 
     def __render_new_project_form(self):
         x = int((dpg.get_viewport_width()/2) - (self.__width/2))
         y = int((dpg.get_viewport_height()/2) - (self.__height/2))
 
+        items = dpg.get_item_children(self.__gcm_list)[1]
+        for item in items:
+            dpg.set_value(item, False)
+
         dpg.hide_item(self.__gcm)
-        self.__set_title("Create New Project")
+        self.__set_modal_title("Create New Project")
         dpg.set_item_pos(self.__id, [x, y])
         dpg.show_item(self.__new_project_form)
         
-    def __selection(self, sender, app_data, user_data):
-        if not dpg.get_value(sender): # selectable value returns bool
-            dpg.disable_item()
-            dpg.disable_item() # <-- CONTINUE HERE
-            
-        items = dpg.get_item_children(self.__gc_list)[1]
+    def __on_gcm_list_selection(self, sender): 
+        list_item_selected = dpg.get_value(sender)
+
+        if list_item_selected:
+            dpg.enable_item(self.__gcm_edit_btn)
+            dpg.enable_item(self.__gcm_delete_btn)
+        else:
+            dpg.disable_item(self.__gcm_edit_btn)
+            dpg.disable_item(self.__gcm_delete_btn)
+
+        items = dpg.get_item_children(self.__gcm_list)[1] # deselect the rest
         for item in items:
             if item != sender:
                 dpg.set_value(item, False)
 
-    def __set_title(self, title:str):
+    def __on_gcm_form_submit(self, sender, app_data, user_data):
+        input_value = dpg.get_value(self.__gcm_text_input)
+        form_action = user_data
+
+        if not input_value:
+            dpg.set_value(self.__gcm_form_feedback, "Form input has no value entered.")
+            dpg.show_item(self.__gcm_form_feedback)
+            return
+            
+        if form_action == "add":
+            if self.__gcs.count(input_value) > 0:
+                dpg.set_value("GC already exists.")
+                dpg.show_item(self.__gcm_form_feedback)
+                return
+            
+            insert_idx = -1
+            for idx, gc in enumerate(self.__gcs):
+                if str.lower(input_value) < str.lower(gc):
+                    insert_idx = idx
+                    break
+            if insert_idx == -1:
+                self.__gcs.append(input_value)
+
+            # get id of the list item at the insert_idx
+            # add one to it, get that items id.
+            # set the before property of the new selectable to that id
+            # if adding one puts it out of range, set the parent to the gc_list as the before property is not needed
+
+
+        if form_action == "edit":
+            pass
+
+            # confirm the form has a value
+            # get the id of the currently selected list item
+            # update that list item with the current value whatever it is
+            # specifically update
+
+    def __set_modal_title(self, title:str):
         dpg.set_item_label(self.__id, title)
