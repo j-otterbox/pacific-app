@@ -8,7 +8,7 @@ from Database import Database
 
 class Login():
     def __init__(self, parent:int|str):
-        self.__parent = parent
+        self._parent = parent
 
         with dpg.table(header_row=False):
             dpg.add_table_column()
@@ -23,16 +23,17 @@ class Login():
                 with dpg.table_cell():
                     pass
 
+        # content
         with dpg.table(header_row=False):
             dpg.add_table_column(width_fixed=True)
             dpg.add_table_column()
 
             with dpg.table_row(): 
                 dpg.add_text("Username")
-                self._username_input_id = dpg.add_input_text(width=-1)
+                self._username_input = dpg.add_input_text(width=-1)
             with dpg.table_row(): #
                 dpg.add_text("Password")
-                self._password_input_id = dpg.add_input_text(password=True, width=-1)
+                self._password_input = dpg.add_input_text(password=True, width=-1)
             with dpg.table_row(show=False) as self._feedback_text_row_id: 
                 with dpg.table_cell():
                     pass
@@ -48,22 +49,21 @@ class Login():
                         dpg.add_button(label="Exit", callback=self._exit)
 
     def _submit(self):
-        username = dpg.get_value(self._username_input_id)
-        password = dpg.get_value(self._password_input_id)
-
+        username = dpg.get_value(self._username_input)
+        password = dpg.get_value(self._password_input)
         bytes = bytearray(password, encoding="utf8")
-        password_hash = sha256(bytes)
-        password_hash_str = password_hash.hexdigest()
+        hash_obj = sha256(bytes)
+        pass_hash_str = hash_obj.hexdigest()
 
-        if self._is_valid_login(username, password_hash_str):
-            dpg.delete_item(self.__parent, children_only=True)
-            welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent=self.__parent)
+        if self._is_valid_login(username, pass_hash_str):
+            dpg.delete_item(self._parent, children_only=True)
+            welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent=self._parent)
             dpg.set_item_pos(welcome_msg_id, [135, 95])
             sleep(1)
             dpg.delete_item(welcome_msg_id)
             dpg.set_viewport_width(600)
             dpg.set_viewport_height(400)
-            Dashboard(self.__parent)
+            Dashboard(self._parent)
         else:
             dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
             dpg.show_item(self._feedback_text_row_id)

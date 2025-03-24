@@ -14,9 +14,8 @@ if __name__ == "__main__":
     load_assets()
     dpg.create_viewport(title='Pacific Carpets', width=405, height=200, resizable=False)
     with dpg.window() as primary_window:
-        dpg.set_primary_window(primary_window, True)
         Login(primary_window)
-        
+    dpg.set_primary_window(primary_window, True)
     dpg.setup_dearpygui()
     dpg.show_viewport()
     dpg.start_dearpygui()
