@@ -1,15 +1,14 @@
 import dearpygui.dearpygui as dpg
 from hashlib import sha256
 from time import sleep
-from dotenv import dotenv_values
 from .Dashboard import Dashboard
+from Database import Database
 
 # TODO: add logging to this action
 
 class Login():
     def __init__(self, parent:int|str):
         self.__parent = parent
-        # self.__config = dotenv_values(".env")
 
         with dpg.table(header_row=False):
             dpg.add_table_column()
@@ -56,7 +55,7 @@ class Login():
         password_hash = sha256(bytes)
         password_hash_str = password_hash.hexdigest()
 
-        if self._verify_login(username, password_hash_str): # set to true during development only
+        if self._is_valid_login(username, password_hash_str):
             dpg.delete_item(self.__parent, children_only=True)
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent=self.__parent)
             dpg.set_item_pos(welcome_msg_id, [135, 95])
@@ -65,18 +64,16 @@ class Login():
             dpg.set_viewport_width(600)
             dpg.set_viewport_height(400)
             Dashboard(self.__parent)
-
         else:
             dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
             dpg.show_item(self._feedback_text_row_id)
 
-    def _verify_login(self, username:str, password_hash_str:str):
-        # get user here
-        return
-
-        # user_match = username == self.__config.get("USERNAME")
-        # password_hash_match = password_hash_str == self.__config.get("PASS_HASH")
-        # return user_match and password_hash_match
+    def _is_valid_login(self, username:str, password_hash_str:str):
+        db = Database()
+        user = db.get_user_by_username(username)
+        if user is not None:
+            return user["pass_hash"] == password_hash_str
+        return False
 
     def _exit(self):
         dpg.destroy_context()
