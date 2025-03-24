@@ -175,6 +175,7 @@ class NewProjectModal:
         dpg.hide_item(self.__gcm)
         self.__set_modal_title("Create New Project")
         dpg.set_item_pos(self.__id, [x, y])
+        dpg.hide_item(self.__gcm_form_feedback)
         dpg.show_item(self.__new_project_form)
         
     def __on_gcm_list_selection(self, sender): 
@@ -203,7 +204,7 @@ class NewProjectModal:
             
         if form_action == "add":
             if self.__gcs.count(input_value) > 0:
-                dpg.set_value("GC already exists.")
+                dpg.set_value(self.__gcm_form_feedback, "GC already exists.")
                 dpg.show_item(self.__gcm_form_feedback)
                 return
             
@@ -212,9 +213,21 @@ class NewProjectModal:
                 if str.lower(input_value) < str.lower(gc):
                     insert_idx = idx
                     break
-            if insert_idx == -1:
-                self.__gcs.append(input_value)
 
+            if insert_idx >= 0:
+                self.__gcs.insert(insert_idx, input_value)
+            else: self.__gcs.append(input_value)
+
+            print(self.__gcs)
+
+            items = dpg.get_item_children(self.__gcm_list)[1]
+            
+            if insert_idx >= 0:
+                dpg.add_selectable(label=input_value, before=items[insert_idx],  callback=self.__on_gcm_list_selection, user_data=input_value)
+            else: 
+                dpg.add_selectable(parent=self.__gcm_list, label=input_value, callback=self.__on_gcm_list_selection, user_data=input_value)
+            self.__render_gcm()
+            
             # get id of the list item at the insert_idx
             # add one to it, get that items id.
             # set the before property of the new selectable to that id
