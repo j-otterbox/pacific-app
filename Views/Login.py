@@ -9,7 +9,7 @@ from .Dashboard import Dashboard
 class Login():
     def __init__(self, parent:int|str):
         self.__parent = parent
-        self.__config = dotenv_values(".env")
+        # self.__config = dotenv_values(".env")
 
         with dpg.table(header_row=False):
             dpg.add_table_column()
@@ -56,7 +56,7 @@ class Login():
         password_hash = sha256(bytes)
         password_hash_str = password_hash.hexdigest()
 
-        if self._verify_login(username, password_hash_str) or True: # use during development only
+        if self._verify_login(username, password_hash_str): # set to true during development only
             dpg.delete_item(self.__parent, children_only=True)
             welcome_msg_id = dpg.add_text(f"Welcome, {username}.", parent=self.__parent)
             dpg.set_item_pos(welcome_msg_id, [135, 95])
@@ -71,9 +71,12 @@ class Login():
             dpg.show_item(self._feedback_text_row_id)
 
     def _verify_login(self, username:str, password_hash_str:str):
-        user_match = username == self.__config.get("USERNAME")
-        password_hash_match = password_hash_str == self.__config.get("PASS_HASH")
-        return user_match and password_hash_match
+        # get user here
+        return
+
+        # user_match = username == self.__config.get("USERNAME")
+        # password_hash_match = password_hash_str == self.__config.get("PASS_HASH")
+        # return user_match and password_hash_match
 
     def _exit(self):
         dpg.destroy_context()
