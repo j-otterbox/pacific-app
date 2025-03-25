@@ -1,18 +1,24 @@
 import dearpygui.dearpygui as dpg
+from Database import Database
+from collections.abc import Callable
 
 class GCManagerForm:
-    def __init__(self):
-        with dpg.stage() as stage_id:
-            with dpg.group(horizontal=True, show=False) as self.__gcm:
+    def __init__(self, render_project_form:Callable):
+        self._db = Database()
+        self._gcs = self._db.get_all_gcs()
+        self._render_project_form = render_project_form
+
+        with dpg.stage() as self._stage_id:
+            with dpg.group(horizontal=True) as self.__gcm:
                 with dpg.child_window(width=240, height=200) as self.__gcm_list:
-                    for gc in self.__gcs:
-                        dpg.add_selectable(label=gc, callback=self.__on_gcm_list_selection, user_data=gc)
+                    for gc in self._gcs:
+                        dpg.add_selectable(label=gc["name"], callback=self.__on_gcm_list_selection, user_data=gc)
 
                 with dpg.child_window(border=False, height=200):
                     self.__gcm_add_btn = dpg.add_button(label="Add", callback=self.__render_gcm_form, width=55)
                     self.__gcm_edit_btn = dpg.add_button(label="Edit", callback=self.__render_gcm_form, enabled=False, width=55)
                     self.__gcm_delete_btn = dpg.add_button(label="Delete", callback=self.__on_gcm_delete_btn_click, enabled=False, width=55)
-                    dpg.add_button(label="Back", callback=self.__render_new_project_form, width=55)
+                    dpg.add_button(label="Back", callback=self.back_btn_handler, width=55)
 
     def __render_gcm_form(self, sender):
         if sender == self.__gcm_add_btn:
@@ -38,19 +44,15 @@ class GCManagerForm:
         # self.__gcs.remove()
         # update the list ui
 
-    def __render_new_project_form(self):
-        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
-        y = int((dpg.get_viewport_height()/2) - (self.__height/2))
-
-        items = dpg.get_item_children(self.__gcm_list)[1]
-        for item in items:
-            dpg.set_value(item, False)
-
-        dpg.hide_item(self.__gcm)
-        self.__set_modal_title("Create New Project")
-        dpg.set_item_pos(self.__id, [x, y])
-        dpg.hide_item(self.__gcm_form_feedback)
-        dpg.show_item(self.__new_project_form)
+    def back_btn_handler(self):
+        dpg.set_item_label(self._parent, "Create New Project")
+        dpg.delete_item(self._parent, children_only=True)
+        print(self._render_project_form)
+        self._render_project_form(self._parent)
+        # ProjectForm.render(self._parent)
+        # x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+        # y = int((dpg.get_viewport_height()/2) - (self.__height/2))
+        # dpg.set_item_pos(self.__id, [x, y])
 
     def __on_gcm_list_selection(self, sender): 
         list_item_selected = dpg.get_value(sender)
@@ -67,5 +69,8 @@ class GCManagerForm:
             if item != sender:
                 dpg.set_value(item, False)
 
-    def render(self):
-        pass
+    def render(self, parent):
+        self._parent = parent
+        dpg.push_container_stack(parent)
+        dpg.unstage(self._stage_id)
+        dpg.pop_container_stack()

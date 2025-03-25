@@ -1,12 +1,13 @@
 import dearpygui.dearpygui as dpg
-from .ProjectListItem import ProjectListItem
 from Database import Database
+from Components.GCManagerForm import GCManagerForm
 
 class ProjectForm:
     def __init__(self):
         self.__width = 322
         self.__height = 127
         self._db = Database()
+        self._gc_manager = GCManagerForm(self.render)
         self._pm_list = self._db.get_all_pms()
         self._gc_list = self._db.get_all_gcs()
 
@@ -29,7 +30,7 @@ class ProjectForm:
                     for gc in self._gc_list:
                         gc_names.append(gc["name"])
                     self._gc_combo = dpg.add_combo(gc_names, default_value="", indent=36, width=184)
-                    dpg.add_button(label="Manage GCs", callback=self.__render_gcm)
+                    dpg.add_button(label="Manage GCs", callback=self._manage_gcs_btn_handler)
 
                 with dpg.group(horizontal=True, horizontal_spacing=15):
                     with dpg.group(horizontal=True):
@@ -86,42 +87,47 @@ class ProjectForm:
                 dpg.configure_item(label, color=(255,255,255))
         dpg.show_item(self._feedback_text)
 
-    # def __reset_modal(self):
-    #     form_items = self._get_form_inputs()
-    #     for field, label in form_items:
-    #         dpg.set_value(field, "")
-    #         dpg.configure_item(label, color=(255,255,255))
-    #     dpg.hide_item(self._feedback_text)
-
+    def _manage_gcs_btn_handler(self):
+        dpg.set_item_label(self._parent, "GC Manager")
+        dpg.delete_item(self._parent, children_only=True)
+        self._gc_manager.render(self._parent)
+        
     def _cancel_btn_handler(self):
         dpg.hide_item(self._parent)
         dpg.delete_item(self._parent, children_only=True)
 
-    def __render_gcm(self):
-        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
-        y = int((dpg.get_viewport_height()/2) - (235/2))
+    # def __render_gcm(self):
+    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+    #     y = int((dpg.get_viewport_height()/2) - (235/2))
 
-        dpg.set_item_pos(self.__id, [x,y])
-        dpg.hide_item(self.__new_project_form)
-        dpg.hide_item(self.__gcm_form)
-        self.__set_modal_title("GC Manager")
-        dpg.show_item(self.__gcm)
+    #     dpg.set_item_pos(self.__id, [x,y])
+    #     dpg.hide_item(self.__new_project_form)
+    #     dpg.hide_item(self.__gcm_form)
+    #     self.__set_modal_title("GC Manager")
+    #     dpg.show_item(self.__gcm)
 
-        if not dpg.is_item_visible(self.__new_project_form):
-            dpg.hide_item(self.__gcm)
-            dpg.hide_item(self.__gcm_form)
-            self.__set_modal_title("Create New Project")
-            dpg.show_item(self.__new_project_form)
+    #     if not dpg.is_item_visible(self.__new_project_form):
+    #         dpg.hide_item(self.__gcm)
+    #         dpg.hide_item(self.__gcm_form)
+    #         self.__set_modal_title("Create New Project")
+    #         dpg.show_item(self.__new_project_form)
 
-    def show(self):
-        x = int((dpg.get_viewport_width()/2) - (self.__width/2))
-        y = int((dpg.get_viewport_height()/2) - (self.__height/2))
+    # def show(self):
+    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+    #     y = int((dpg.get_viewport_height()/2) - (self.__height/2))
 
-        dpg.set_item_pos(self.__id, [x, y])
-        dpg.show_item(self.__id)
+    #     dpg.set_item_pos(self.__id, [x, y])
+    #     dpg.show_item(self.__id)
 
     def render(self, parent):
         self._parent = parent
         dpg.push_container_stack(parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
+
+    # def __reset_modal(self):
+    #     form_items = self._get_form_inputs()
+    #     for field, label in form_items:
+    #         dpg.set_value(field, "")
+    #         dpg.configure_item(label, color=(255,255,255))
+    #     dpg.hide_item(self._feedback_text)
