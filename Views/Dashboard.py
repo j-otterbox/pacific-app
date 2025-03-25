@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from Components.NewProjectModal import NewProjectModal
+from Components.ProjectForm import ProjectForm
     
 class Dashboard():
     def __init__(self):
@@ -10,8 +10,11 @@ class Dashboard():
             with dpg.group(horizontal=True):
                 with dpg.child_window(height=400, width=325, menubar=True):
                     with dpg.menu_bar():
-                        menu_id = dpg.add_menu(label="Project Explorer")
-                        self.__new_project_btn = dpg.add_menu_item(label="New Project", parent=menu_id)
+                        with dpg.menu(label="Project Explorer"):
+                            dpg.add_menu_item(label="New Project", callback=self._new_project_btn_handler)
+
+                        # menu_id = dpg.add_menu(label="Project Explorer")
+                        # dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project_btn_handler)
                     
                     with dpg.group() as self._projects_list:
                         pass
@@ -20,8 +23,16 @@ class Dashboard():
                     with dpg.menu_bar():
                         dpg.add_menu(label="What's going on...")
 
-                self.__new_project_modal = NewProjectModal(self._projects_list)
-                dpg.set_item_callback(self.__new_project_btn, self.__new_project_modal.show)
+            with dpg.window(width=322, autosize=True, min_size=[322, 80], modal=True, no_collapse=True, on_close=self._reset_modal, show=False) as self._modal:
+                pass
+            
+    def _new_project_btn_handler(self):
+        dpg.set_item_label(self._modal, "Create New Project")
+        ProjectForm().render(self._modal)
+        dpg.show_item(self._modal)
+
+    def _reset_modal(self):
+        dpg.delete_item(self._modal, children_only=True)
 
     def render(self, parent):
         self._parent = parent

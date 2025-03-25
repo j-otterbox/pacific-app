@@ -12,17 +12,14 @@ class Database:
         self._conn = sqlite3.connect(DATABASE_NAME)
         self._cursor = self._conn.cursor()
 
-    # done
     def create_new_user(self, username, pass_hash):
         self._cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
         self._conn.commit()
 
-    # done
     def create_new_pm(self, name):
         self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
         self._conn.commit()
 
-    # done
     def create_new_gc(self, name):
         self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?)", (name))
         self._conn.commit()
@@ -35,7 +32,6 @@ class Database:
         self._cursor.execute()
         self._conn.commit()
 
-    # done
     def get_user_by_username(self, username:str):
         resp = self._cursor.execute("SELECT rowid, * FROM users WHERE username=(?)", (username,))
         user = resp.fetchone()
@@ -43,7 +39,6 @@ class Database:
             user = self._user_factory(user)
         return user
 
-    # done
     def get_all_users(self):
         resp = self._cursor.execute("SELECT rowid, * FROM users")
         user_list = resp.fetchall()
@@ -51,15 +46,13 @@ class Database:
             user_list[idx] = self._user_factory(user)
         return user_list
 
-    # done
     def get_all_pms(self):
         resp = self._cursor.execute("SELECT rowid, * FROM project_managers")
         pm_list = resp.fetchall()
         for idx, pm in enumerate(pm_list):
-            pm_list[idx] = self._pm_factory(pm_list)
+            pm_list[idx] = self._pm_factory(pm)
         return pm_list
 
-    # done
     def get_all_gcs(self):
         resp = self._cursor.execute("SELECT rowid, * FROM general_contractors")
         gc_list = resp.fetchall()
@@ -67,40 +60,32 @@ class Database:
             gc_list[idx] = self._gc_factory(gc)
         return gc_list
 
-    # done
     def update_user_pass_hash(self, id, pass_hash):
         self._cursor.execute("UPDATE users SET pass_hash=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (pass_hash, id))
         self._conn.commit()
 
-    # done
     def update_pm(self, id, name):
         self._cursor.execute("UPDATE project_managers SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
         self._conn.commit()
 
-    # done
     def update_gc(self, id, name):
         self._cursor.execute("UPDATE general_contractors SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
 
-    # done
     def delete_user(self, id):
         self._cursor.execute("DELETE FROM users WHERE rowid=(?)", (id))
         self._conn.commit()
 
-    # done
     def delete_pm(self, id):
         self._cursor.execute("DELETE FROM project_managers WHERE rowid=(?)", (id))
         self._conn.commit()
 
-    # done
     def delete_gc(self, id):
         self._cursor.execute("DELETE FROM general_contractors WHERE rowid=(?)", (id))
         self._conn.commit()
 
-    # done
     def _get_current_timestamp(self):
         return strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
-    # done
     def _user_factory(self, user:tuple):
         return {
                 "id": user[0],
@@ -110,7 +95,6 @@ class Database:
                 "modified_date": user[4]
         }
 
-    # done
     def _pm_factory(self, pm:tuple):
         return {
             "id": pm[0],
@@ -119,7 +103,6 @@ class Database:
             "modified_date": pm[3]
         }
 
-    # done
     def _gc_factory(self, gc:tuple):
         return {
             "id": gc[0],
@@ -173,13 +156,14 @@ def _create_admin_user(conn:sqlite3.Connection):
 def _create_project_managers(conn:sqlite3.Connection):
     cursor = conn.cursor()
     pm_list = [
-        ("Clint Walker",),
-        ("Kim Raffee",),
-        ("Jermey Simoneaux",),
-        ("Robert Yula",),
-        ("Rymmy Andre",)
+        "Clint Walker",
+        "Kim Raffee",
+        "Jermey Simoneaux",
+        "Robert Yula",
+        "Rymmy Andre"
     ]
-    cursor.executemany("INSERT INTO project_managers (name) VALUES (?)", pm_list)
+    for name in pm_list:
+        cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name,))
     conn.commit()
 
 def _create_general_contractors(conn:sqlite3.Connection):
