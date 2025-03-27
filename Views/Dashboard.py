@@ -5,6 +5,7 @@ class Dashboard():
     def __init__(self):
         dpg.set_viewport_width(600)
         dpg.set_viewport_height(400)
+        self._project_form = ProjectForm()
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
@@ -28,7 +29,7 @@ class Dashboard():
             
     def _new_project_btn_handler(self):
         dpg.set_item_label(self._modal, "Create New Project")
-        ProjectForm().render(self._modal)
+        self._project_form.render(self._modal)
         dpg.show_item(self._modal)
 
     def _reset_modal(self):

@@ -9,8 +9,6 @@ class ProjectForm:
         self._db = Database()
         self._gc_manager = GCManagerForm(self._back_btn_handler)
 
-        print("initing the projectform")
-
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True, horizontal_spacing=15):
                 with dpg.group(horizontal=True):
@@ -91,6 +89,8 @@ class ProjectForm:
         dpg.show_item(self._feedback_text)
 
     def _gc_manager_btn_handler(self):
+        dpg.set_item_label(self._parent, "GC Manager")
+        dpg.delete_item(self._parent, children_only=True)
         self._gc_manager.render(self._parent)
         
     def _cancel_btn_handler(self):
@@ -128,7 +128,6 @@ class ProjectForm:
 
     def _back_btn_handler(self) -> None:
         """ Callback for back button of the GC Manager. """
-        print("im back bitches")
         dpg.set_item_label(self._parent, "Create New Project")
         dpg.delete_item(self._parent, children_only=True)
         self._update_pm_combo()
