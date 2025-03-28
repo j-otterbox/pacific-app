@@ -20,10 +20,22 @@ class Database:
         self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
         self._conn.commit()
 
-    def create_new_gc(self, name):
-        self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?)", (name))
-        self._conn.commit()
+    def create_new_gc(self, name) -> dict:
+        """
+            Creates a new general contractor under the given name.
+        """
+        resp = self._create_response()
+        try:
+            self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?)", (name,))
+            self._conn.commit()
+            resp["success"] = True
 
+        except sqlite3.IntegrityError as err:
+            resp["success"] = False
+            if "UNIQUE constraint failed" in str(err): 
+                resp["msg"] = "There is already a GC that goes by this name."
+        return resp
+  
     def create_new_project(self, payload):
         self._cursor.execute("INSERT INTO projects (id, pm, gc, name) VALUES (:id, :pm, :gc, :name)", payload)
         self._conn.commit()
@@ -76,7 +88,7 @@ class Database:
         self._conn.commit()
 
     def delete_pm(self, id):
-        self._cursor.execute("DELETE FROM project_managers WHERE rowid=(?)", (id))
+        self._cursor.execute("DELETE FROM project_managers WHERE rowid=(?)", (id,))
         self._conn.commit()
 
     def delete_gc(self, id):
@@ -109,6 +121,13 @@ class Database:
             "name": gc[1],
             "create_date": gc[2],
             "modified_date": gc[3]
+        }
+
+    def _create_response(self, success:bool=False, msg:str="", data:list=[]):
+        return {
+            "success": success,
+            "msg": msg,
+            "data": data
         }
 
 def initialize_db():
