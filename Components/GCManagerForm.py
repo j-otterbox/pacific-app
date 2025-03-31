@@ -32,12 +32,24 @@ class GCManagerForm:
         self._input_form.render(self._parent)
 
     def _create_gc(self) -> None:
-        new_gc = self._input_form.get_value()
-        resp = self._db.create_new_gc(new_gc)
+        user_input = self._input_form.get_value()
+        resp = self._db.create_new_gc(user_input)
 
         if resp["success"]:
+            new_gc = resp["data"][0]
+            gc_list_items = dpg.get_item_children(self._gc_list)[1]
+
+            for list_item in gc_list_items:
+                existing_gc = dpg.get_item_user_data(list_item)
+                if new_gc["name"] < existing_gc["name"]:
+                    dpg.add_selectable(
+                        before=list_item,
+                        callback=self._gc_list_select_handler,
+                        label=new_gc["name"], 
+                        user_data=new_gc
+                    )
+                    break
             self._return_to_gc_manager()
-            # TODO: update the GC list with the changes
         else:
             self._input_form.set_feedback(resp["msg"])
             self._input_form.show_feedback()

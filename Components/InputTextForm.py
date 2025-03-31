@@ -46,9 +46,7 @@ class InputTextForm:
 
     def set_cancel_btn_callback(self, callback:Callable) -> None:
         dpg.set_item_callback(self._cancel_btn, callback)
-
-
-
+        
     def render(self, parent) -> None:
         """ Moves the item from staging to a child of the given parent. """
         self._parent = parent

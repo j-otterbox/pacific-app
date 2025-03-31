@@ -22,14 +22,17 @@ class Database:
 
     def create_new_gc(self, name) -> dict:
         """
-            Creates a new general contractor under the given name.
+            Creates a new general contractor under the given name, returns new record on success.
         """
         resp = self._create_response()
         try:
-            self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?)", (name,))
+            self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?) RETURNING rowid, *", (name,))
+            query_results = self._cursor.fetchall()
+            query_results[0] = self._gc_factory(query_results[0])
             self._conn.commit()
             resp["success"] = True
-
+            resp["data"] = query_results
+            
         except sqlite3.IntegrityError as err:
             resp["success"] = False
             if "UNIQUE constraint failed" in str(err): 
@@ -59,14 +62,14 @@ class Database:
         return user_list
 
     def get_all_pms(self):
-        resp = self._cursor.execute("SELECT rowid, * FROM project_managers")
+        resp = self._cursor.execute("SELECT rowid, * FROM project_managers ORDER BY name")
         pm_list = resp.fetchall()
         for idx, pm in enumerate(pm_list):
             pm_list[idx] = self._pm_factory(pm)
         return pm_list
 
     def get_all_gcs(self):
-        resp = self._cursor.execute("SELECT rowid, * FROM general_contractors")
+        resp = self._cursor.execute("SELECT rowid, * FROM general_contractors ORDER BY name")
         gc_list = resp.fetchall()
         for idx, gc in enumerate(gc_list):
             gc_list[idx] = self._gc_factory(gc)
