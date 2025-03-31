@@ -33,7 +33,10 @@ class GCManagerForm:
         self._input_form.render(self._parent)
 
     def _create_gc(self) -> None:
-        """ Commits the current form value and handles the success/failure of the query. """
+        """
+            Commits the current form value with the new general 
+            contractor and handles the success/failure of the query.
+        """
         user_input = self._input_form.get_value()
 
         if not user_input:
@@ -53,23 +56,24 @@ class GCManagerForm:
 
     def _edit_btn_handler(self) -> None:
         """ 
-            Handler for the GC Manager edit button which opens another form 
-            and preloads the name of the currently selected general contractor.
+            Preps and renders the form with the selected general contractor for updating.
         """
         dpg.set_item_label(self._parent, "Edit GC")
         dpg.delete_item(self._parent, children_only=True)
-        self._input_form.set_save_btn_callback(self._update_gc)
         gc_name = dpg.get_item_user_data(self._selected_list_item)["name"]
-        self._input_form.set_value(gc_name)        
+        self._input_form.set_value(gc_name)
+        self._input_form.set_save_btn_callback(self._update_gc)        
         self._input_form.render(self._parent)
 
     def _update_gc(self) -> None:
-        """"""
+        """ Commits the current form value updating the selected general contractor. """
         selected_gc = dpg.get_item_user_data(self._selected_list_item)
         user_input = self._input_form.get_value()
 
         if user_input != selected_gc["name"]:
             self._db.update_gc(selected_gc["id"], user_input)
+            selected_gc["name"] = user_input
+            dpg.set_item_user_data(self._selected_list_item, selected_gc)
             dpg.set_item_label(self._selected_list_item, user_input)
             self._return_to_gc_manager()
 
