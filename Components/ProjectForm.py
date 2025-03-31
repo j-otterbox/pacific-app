@@ -7,7 +7,7 @@ from Components.GCManagerForm import GCManagerForm
 class ProjectForm:
     def __init__(self):
         self._db = Database()
-        self._gc_manager = GCManagerForm(self._back_btn_handler)
+        self._gc_manager = GCManagerForm(self._return_to_proj_form)
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True, horizontal_spacing=15):
@@ -17,14 +17,14 @@ class ProjectForm:
                 with dpg.group(horizontal=True):
                     self._pm_combo_label = dpg.add_text("PM")
                     pm_names = []
-                    for pm in self._db.get_all_pms():
+                    for pm in self._db.get_all_project_mgrs():
                         pm_names.append(pm["name"])
                     self._pm_combo = dpg.add_combo(pm_names, default_value="", width=80)
 
             with dpg.group(horizontal=True):
                 self._gc_combo_label = dpg.add_text("GC")
                 gc_names = []
-                for gc in self._db.get_all_gcs():
+                for gc in self._db.get_all_gen_contractors():
                     gc_names.append(gc["name"])
                 self._gc_combo = dpg.add_combo(gc_names, default_value="", indent=36, width=184)
                 dpg.add_button(label="Manage GCs", callback=self._gc_manager_btn_handler)
@@ -126,21 +126,27 @@ class ProjectForm:
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
 
-    def _back_btn_handler(self) -> None:
+    def _return_to_proj_form(self) -> None:
         """ Callback for back button of the GC Manager. """
         dpg.set_item_label(self._parent, "Create New Project")
         dpg.delete_item(self._parent, children_only=True)
+        dpg.configure_item(self._pm_combo, default_value="")
+        dpg.configure_item(self._gc_combo, default_value="")
         self._update_pm_combo()
+        self._update_gc_combo()
         self.render(self._parent)
 
     def _update_pm_combo(self):
         pm_names = []
-        for pm in self._db.get_all_pms():
+        for pm in self._db.get_all_project_mgrs():
             pm_names.append(pm["name"])
         dpg.configure_item(self._pm_combo, items=pm_names)
 
     def _update_gc_combo(self):
-        pass
+        gc_names = []
+        for gc in self._db.get_all_gen_contractors():
+            gc_names.append(gc["name"])
+        dpg.configure_item(self._gc_combo, items=gc_names)
 
     # def __reset_modal(self):
     #     form_items = self._get_form_inputs()

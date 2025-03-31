@@ -14,8 +14,10 @@ class InputTextForm:
                 self._save_btn = dpg.add_button(label="Save", width=55)
                 self._cancel_btn = dpg.add_button(label="Cancel", width=55)
 
-                if save_btn_callback is not None: dpg.set_item_callback(self._save_btn, save_btn_callback)
-                if cancel_btn_callback is not None: dpg.set_item_callback(self._cancel_btn, cancel_btn_callback)
+                if save_btn_callback is not None: 
+                    dpg.set_item_callback(self._save_btn, save_btn_callback)
+                if cancel_btn_callback is not None: 
+                    dpg.set_item_callback(self._cancel_btn, cancel_btn_callback)
 
     def get_value(self) -> str:
         """ Returns the current value of the form input. """
@@ -46,7 +48,7 @@ class InputTextForm:
 
     def set_cancel_btn_callback(self, callback:Callable) -> None:
         dpg.set_item_callback(self._cancel_btn, callback)
-        
+
     def render(self, parent) -> None:
         """ Moves the item from staging to a child of the given parent. """
         self._parent = parent

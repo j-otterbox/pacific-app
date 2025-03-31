@@ -20,7 +20,7 @@ class Database:
         self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
         self._conn.commit()
 
-    def create_new_gc(self, name) -> dict:
+    def create_gen_contractor(self, name) -> dict:
         """
             Creates a new general contractor under the given name, returns new record on success.
         """
@@ -61,14 +61,14 @@ class Database:
             user_list[idx] = self._user_factory(user)
         return user_list
 
-    def get_all_pms(self):
+    def get_all_project_mgrs(self):
         resp = self._cursor.execute("SELECT rowid, * FROM project_managers ORDER BY name")
         pm_list = resp.fetchall()
         for idx, pm in enumerate(pm_list):
             pm_list[idx] = self._pm_factory(pm)
         return pm_list
 
-    def get_all_gcs(self):
+    def get_all_gen_contractors(self):
         resp = self._cursor.execute("SELECT rowid, * FROM general_contractors ORDER BY name")
         gc_list = resp.fetchall()
         for idx, gc in enumerate(gc_list):
@@ -83,8 +83,9 @@ class Database:
         self._cursor.execute("UPDATE project_managers SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
         self._conn.commit()
 
-    def update_gc(self, id, name):
+    def update_gc(self, id:int|str, name:str):
         self._cursor.execute("UPDATE general_contractors SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
+        self._conn.commit()
 
     def delete_user(self, id):
         self._cursor.execute("DELETE FROM users WHERE rowid=(?)", (id))
@@ -94,8 +95,8 @@ class Database:
         self._cursor.execute("DELETE FROM project_managers WHERE rowid=(?)", (id,))
         self._conn.commit()
 
-    def delete_gc(self, id):
-        self._cursor.execute("DELETE FROM general_contractors WHERE rowid=(?)", (id))
+    def delete_gen_contractor(self, id:int|str):
+        self._cursor.execute("DELETE FROM general_contractors WHERE rowid=(?)", (id,))
         self._conn.commit()
 
     def _get_current_timestamp(self):

@@ -7,15 +7,15 @@ from Components.ConfirmationForm import ConfirmationForm
 class GCManagerForm:
     def __init__(self, back_btn_callback: Callable=None):
         self._db = Database()
-        self._gcs = self._db.get_all_gcs()
+        self._gc_list = self._db.get_all_gen_contractors()
         self._input_form = InputTextForm(input_label="Name", cancel_btn_callback=self._return_to_gc_manager)
-        self._confirmation_form = ConfirmationForm()
+        self._confirmation_form = ConfirmationForm(cancel_btn_callback=self._return_to_gc_manager)
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
-                with dpg.child_window(width=240, height=200) as self._gc_list:
-                    for gc in self._gcs:
-                        dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._gc_list_select_handler)
+                with dpg.child_window(width=240, height=200) as self._selectables_container:
+                    for gc in self._gc_list:
+                        dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._gc_selectable_handler)
 
                 with dpg.child_window(border=False, height=200):
                     self._add_gc_btn = dpg.add_button(label="Add", callback=self._add_btn_handler, width=55)
@@ -24,35 +24,32 @@ class GCManagerForm:
                     if back_btn_callback is not None:
                         self._back_btn = dpg.add_button(label="Back", callback=back_btn_callback, width=55)
 
-    def _add_btn_handler(self):
-        dpg.set_item_label(self._parent, "Add New GC")
+    def _add_btn_handler(self) -> None:
+        """ Preps and renders the form for creating new general contractors. """
+        dpg.set_item_label(self._parent, "Create New GC")
         dpg.delete_item(self._parent, children_only=True)
         self._input_form.clear()
         self._input_form.set_save_btn_callback(self._create_gc)
         self._input_form.render(self._parent)
 
     def _create_gc(self) -> None:
+        """ Commits the current form value and handles the success/failure of the query. """
         user_input = self._input_form.get_value()
-        resp = self._db.create_new_gc(user_input)
 
-        if resp["success"]:
-            new_gc = resp["data"][0]
-            gc_list_items = dpg.get_item_children(self._gc_list)[1]
-
-            for list_item in gc_list_items:
-                existing_gc = dpg.get_item_user_data(list_item)
-                if new_gc["name"] < existing_gc["name"]:
-                    dpg.add_selectable(
-                        before=list_item,
-                        callback=self._gc_list_select_handler,
-                        label=new_gc["name"], 
-                        user_data=new_gc
-                    )
-                    break
-            self._return_to_gc_manager()
-        else:
-            self._input_form.set_feedback(resp["msg"])
+        if not user_input:
+            self._input_form.set_feedback("Form is not filled out.")
             self._input_form.show_feedback()
+        else:
+            resp = self._db.create_gen_contractor(user_input)
+
+            if resp["success"]:
+                new_gc = resp["data"][0]
+                self._gc_list.append(new_gc)
+                self._update_gc_selectables()
+                self._return_to_gc_manager()
+            else:
+                self._input_form.set_feedback(resp["msg"])
+                self._input_form.show_feedback()
 
     def _edit_btn_handler(self) -> None:
         """ 
@@ -67,36 +64,57 @@ class GCManagerForm:
         self._input_form.render(self._parent)
 
     def _update_gc(self) -> None:
-        """
+        """"""
+        selected_gc = dpg.get_item_user_data(self._selected_list_item)
+        user_input = self._input_form.get_value()
 
-        """
-        current_value = dpg.get_item_user_data(self._selected_list_item)["name"]
-        new_value = self._input_form.get_value()
-        print(current_value, new_value)
+        if user_input != selected_gc["name"]:
+            self._db.update_gc(selected_gc["id"], user_input)
+            dpg.set_item_label(self._selected_list_item, user_input)
+            self._return_to_gc_manager()
 
     def _delete_btn_handler(self):
-        gc_name = dpg.get_item_user_data(self._selected_list_item)["name"]
         dpg.set_item_label(self._parent, "Confirm Delete")
         dpg.delete_item(self._parent, children_only=True)
+        gc_name = dpg.get_item_user_data(self._selected_list_item)["name"]
         self._confirmation_form.set_prompt(f"Are you sure you want to delete GC '{gc_name}'?")
+        self._confirmation_form.set_confirm_callback(self._delete_gc)
         self._confirmation_form.render(self._parent)
 
     def _delete_gc(self):
-        pass
-        # get the id of the currently selected list item
-        # delete it
-        # update the ui on success
-        # provide error message if fail
+        selected_gc = dpg.get_item_user_data(self._selected_list_item)
+        self._db.delete_gen_contractor(selected_gc["id"])
+        for idx, gc in enumerate(self._gc_list):
+            if selected_gc["id"] == gc["id"]:
+                self._gc_list.pop(idx)
+                break
+        self._update_gc_selectables()
+        self._return_to_gc_manager()
+
+    def _update_gc_selectables(self):
+        self._gc_list.sort(key=lambda gc : gc["name"])
+        dpg.delete_item(self._selectables_container, children_only=True)
+        for gc in self._gc_list:
+            dpg.add_selectable(
+                label=gc["name"],
+                parent=self._selectables_container,
+                callback=self._gc_selectable_handler,
+                user_data=gc
+            )
 
     def _return_to_gc_manager(self) -> None:
         """ 
-            To be passed to the add/edit/delete forms as a handler when the user cancels any operation.
+            To be passed to the add/edit/delete forms as a handler
+            when the user completes or cancels any operation.
         """
         dpg.set_item_label(self._parent, "GC Manager")
         dpg.delete_item(self._parent, children_only=True)
         self.render(self._parent)
 
-    def _gc_list_select_handler(self, sender): 
+    def _sort_gcs(self):
+        pass
+
+    def _gc_selectable_handler(self, sender): 
         list_item_selected = dpg.get_value(sender)
         
         if list_item_selected:
@@ -108,7 +126,7 @@ class GCManagerForm:
             dpg.disable_item(self._update_gc_btn)
             dpg.disable_item(self._delete_gc_btn)
 
-        items = dpg.get_item_children(self._gc_list)[1]
+        items = dpg.get_item_children(self._selectables_container)[1]
         for item in items:
             if item != sender:
                 dpg.set_value(item, False)
