@@ -39,7 +39,7 @@ class Database:
                 resp["msg"] = "There is already a GC that goes by this name."
         return resp
 
-    def create_new_project(self, payload):
+    def create_new_project(self, payload:dict) -> None:
         self._cursor.execute("INSERT INTO projects (id, pm, gc, name) VALUES (:id, :pm, :gc, :name)", payload)
         self._conn.commit()
 
@@ -150,7 +150,7 @@ def initialize_db():
         # for testing during development - delete later
         resp = cursor.execute("SELECT name FROM sqlite_master")
         print(resp.fetchall())
-        
+
         conn.close()
     else:
         print("DB exists, no init needed.")

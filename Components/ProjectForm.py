@@ -48,18 +48,12 @@ class ProjectForm:
             form_values = self._get_form_values()
             self._db.create_new_project(form_values)
 
-
             # create new project in database
             # should be on success only of previous task but
             # create a new project list item
 
         else:
             self._show_feedback()  
-
-    def _is_form_completed(self): 
-        for _, item in self._get_form_items():
-            if dpg.get_value(item) == "": return False
-        return True
 
     def _get_form_values(self):
         return {
@@ -68,6 +62,11 @@ class ProjectForm:
             "gc": dpg.get_value(self._gc_combo),
             "pm": dpg.get_value(self._pm_combo)
         }
+
+    def _is_form_completed(self) -> bool: 
+        for _, input in self._get_form_items():
+            if dpg.get_value(input) == "": return False
+        return True
 
     def _get_form_items(self):
         return [

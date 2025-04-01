@@ -17,8 +17,8 @@ class Dashboard():
                         # menu_id = dpg.add_menu(label="Project Explorer")
                         # dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project_btn_handler)
                     
-                    with dpg.group() as self._projects_list:
-                        pass
+                    with dpg.child_window(border=False) as self._projects_list:
+                        pass # will load existing projects
 
                 with dpg.child_window(height=400, menubar=True):
                     with dpg.menu_bar():
