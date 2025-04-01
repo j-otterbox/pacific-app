@@ -2,8 +2,6 @@ import dearpygui.dearpygui as dpg
 from Database import Database
 from Components.GCManagerForm import GCManagerForm
 
-# refactor GC manager to be an import that requires the back btn callback
-
 class ProjectForm:
     def __init__(self):
         self._db = Database()
@@ -91,6 +89,7 @@ class ProjectForm:
     def _gc_manager_btn_handler(self):
         dpg.set_item_label(self._parent, "GC Manager")
         dpg.delete_item(self._parent, children_only=True)
+        self._gc_manager.clear()
         self._gc_manager.render(self._parent)
         
     def _cancel_btn_handler(self):

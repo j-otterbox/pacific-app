@@ -38,7 +38,7 @@ class Database:
             if "UNIQUE constraint failed" in str(err): 
                 resp["msg"] = "There is already a GC that goes by this name."
         return resp
-  
+
     def create_new_project(self, payload):
         self._cursor.execute("INSERT INTO projects (id, pm, gc, name) VALUES (:id, :pm, :gc, :name)", payload)
         self._conn.commit()

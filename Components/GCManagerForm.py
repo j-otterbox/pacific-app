@@ -130,10 +130,20 @@ class GCManagerForm:
             dpg.disable_item(self._update_gc_btn)
             dpg.disable_item(self._delete_gc_btn)
 
-        items = dpg.get_item_children(self._selectables_container)[1]
-        for item in items:
+        selectables = dpg.get_item_children(self._selectables_container)[1]
+        for item in selectables:
             if item != sender:
                 dpg.set_value(item, False)
+        
+
+    def clear(self):
+        """ Resets the GC Manager form to it's default state, no items selected. """
+        selectables = dpg.get_item_children(self._selectables_container)[1]
+        for item in selectables:
+            dpg.set_value(item, False)
+        self._selected_list_item = None
+        dpg.disable_item(self._update_gc_btn)
+        dpg.disable_item(self._delete_gc_btn)
 
     def render(self, parent):
         self._parent = parent
