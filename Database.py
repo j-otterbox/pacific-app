@@ -150,10 +150,7 @@ def initialize_db():
         # for testing during development - delete later
         resp = cursor.execute("SELECT name FROM sqlite_master")
         print(resp.fetchall())
-
-        # resp = cursor.execute("SELECT * FROM general_contractors")
-        # print(resp.fetchall())
-
+        
         conn.close()
     else:
         print("DB exists, no init needed.")
@@ -166,8 +163,30 @@ def _create_tables(conn:sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS project_managers (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS general_contractors (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS projects (job_id INTEGER, pm INTEGER, gc INTEGER, name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS carpet (
+            project_id INTEGER,
+            scope TEXT,
+            location TEXT,
+            type TEXT,
+            callout TEXT,
+            vendor TEXT,
+            collection TEXT,
+            style TEXT,
+            fiber_type TEXT,
+            color TEXT,
+            length TEXT,
+            width TEXT,
+            weight TEXT,
+            backing TEXT,
+            adhesive TEXT,
+            samples TEXT,
+            specs TEXT,
+            maintenance TEXT,
+            warranty TEXT,
+            FOREIGN KEY (project_id) REFERENCES projects (rowid)
+        );
     """)
-    # TODO: self._cursor.execute("CREATE TABLE materials (project_id INTEGER, scope TEXT, type TEXT, callout TEXT, vendor TEXT, style TEXT, )")
+    # TODO: create table for tile and resilient
 
 def _create_admin_user(conn:sqlite3.Connection):
     cursor = conn.cursor()
