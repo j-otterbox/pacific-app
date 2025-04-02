@@ -212,7 +212,7 @@ def _create_general_contractors(conn:sqlite3.Connection):
     cursor = conn.cursor()
     general_contractors = [
         ("AECOM",),
-        ("Alliance Residental",),
+        ("Alliance Residential",),
         ("Benchmark Contractors",),
         ("Build Group",),
         ("Consolidated Contracting Services",),
