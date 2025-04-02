@@ -40,7 +40,7 @@ class Database:
         return resp
 
     def create_new_project(self, payload:dict) -> None:
-        self._cursor.execute("INSERT INTO projects (id, pm, gc, name) VALUES (:id, :pm, :gc, :name)", payload)
+        self._cursor.execute("INSERT INTO projects (job_id, pm, gc, name) VALUES (:job_id, :pm, :gc, :name)", payload)
         self._conn.commit()
 
     def create_new_material(self):

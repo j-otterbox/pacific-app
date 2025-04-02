@@ -13,29 +13,44 @@ class GCManagerForm:
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
-                with dpg.child_window(width=240, height=200) as self._selectables_container:
+                with dpg.child_window(width=240, height=200) as self._selectables_list:
                     for gc in self._gc_list:
-                        dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._gc_selectable_handler)
+                        dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._selectable_click_handler)
 
                 with dpg.child_window(border=False, height=200):
-                    self._add_gc_btn = dpg.add_button(label="Add", callback=self._add_btn_handler, width=55)
-                    self._update_gc_btn = dpg.add_button(label="Edit", callback=self._edit_btn_handler, enabled=False, width=55)
-                    self._delete_gc_btn = dpg.add_button(label="Delete", callback=self._delete_btn_handler, enabled=False, width=55)
+                    self._add_btn = dpg.add_button(label="Add", callback=self._add_btn_click_handler, width=55)
+                    self._edit_btn = dpg.add_button(label="Edit", callback=self._edit_btn_click_handler, enabled=False, width=55)
+                    self._delete_btn = dpg.add_button(label="Delete", callback=self._delete_btn_click_handler, enabled=False, width=55)
                     if back_btn_callback is not None:
                         self._back_btn = dpg.add_button(label="Back", callback=back_btn_callback, width=55)
 
-    def _add_btn_handler(self) -> None:
+    def _selectable_click_handler(self, sender) -> None:
+        """ Toggles selectable on/off, only one item toggled on max. """
+        self._toggled_selectable = dpg.get_value(sender)
+        
+        if self._toggled_selectable:
+            dpg.enable_item(self._edit_btn)
+            dpg.enable_item(self._delete_btn)
+        else:
+            dpg.disable_item(self._edit_btn)
+            dpg.disable_item(self._delete_btn)
+
+        selectables = dpg.get_item_children(self._selectables_list)[1]
+        for item in selectables:
+            if item != sender:
+                dpg.set_value(item, False)
+
+    def _add_btn_click_handler(self) -> None:
         """ Preps and renders the form for creating new general contractors. """
         dpg.set_item_label(self._parent, "Create New GC")
         dpg.delete_item(self._parent, children_only=True)
         self._input_form.clear()
-        self._input_form.set_save_btn_callback(self._create_gc)
+        self._input_form.set_save_btn_callback(self._save_new_gc)
         self._input_form.render(self._parent)
 
-    def _create_gc(self) -> None:
+    def _save_new_gc(self) -> None:
         """
-            Commits the current form value with the new general 
-            contractor and handles the success/failure of the query.
+            Creates a new GC and returns a response from the database.
         """
         user_input = self._input_form.get_value()
 
@@ -54,39 +69,39 @@ class GCManagerForm:
                 self._input_form.set_feedback(resp["msg"])
                 self._input_form.show_feedback()
 
-    def _edit_btn_handler(self) -> None:
+    def _edit_btn_click_handler(self) -> None:
         """ 
             Preps and renders the form with the selected general contractor for updating.
         """
         dpg.set_item_label(self._parent, "Edit GC")
         dpg.delete_item(self._parent, children_only=True)
-        gc_name = dpg.get_item_user_data(self._selected_list_item)["name"]
+        gc_name = dpg.get_item_user_data(self._toggled_selectable)["name"]
         self._input_form.set_value(gc_name)
-        self._input_form.set_save_btn_callback(self._update_gc)        
+        self._input_form.set_save_btn_callback(self._save_gc_edit_handler)        
         self._input_form.render(self._parent)
 
-    def _update_gc(self) -> None:
+    def _save_gc_edit_handler(self) -> None:
         """ Commits the current form value updating the selected general contractor. """
-        selected_gc = dpg.get_item_user_data(self._selected_list_item)
+        selected_gc = dpg.get_item_user_data(self._toggled_selectable)
         user_input = self._input_form.get_value()
 
         if user_input != selected_gc["name"]:
             self._db.update_gc(selected_gc["id"], user_input)
             selected_gc["name"] = user_input
-            dpg.set_item_user_data(self._selected_list_item, selected_gc)
-            dpg.set_item_label(self._selected_list_item, user_input)
+            dpg.set_item_user_data(self._toggled_selectable, selected_gc)
+            dpg.set_item_label(self._toggled_selectable, user_input)
             self._return_to_gc_manager()
 
-    def _delete_btn_handler(self):
+    def _delete_btn_click_handler(self):
         dpg.set_item_label(self._parent, "Confirm Delete")
         dpg.delete_item(self._parent, children_only=True)
-        gc_name = dpg.get_item_user_data(self._selected_list_item)["name"]
+        gc_name = dpg.get_item_user_data(self._toggled_selectable)["name"]
         self._confirmation_form.set_prompt(f"Are you sure you want to delete GC '{gc_name}'?")
         self._confirmation_form.set_confirm_callback(self._delete_gc)
         self._confirmation_form.render(self._parent)
 
     def _delete_gc(self):
-        selected_gc = dpg.get_item_user_data(self._selected_list_item)
+        selected_gc = dpg.get_item_user_data(self._toggled_selectable)
         self._db.delete_gen_contractor(selected_gc["id"])
         for idx, gc in enumerate(self._gc_list):
             if selected_gc["id"] == gc["id"]:
@@ -97,12 +112,12 @@ class GCManagerForm:
 
     def _update_gc_selectables(self):
         self._gc_list.sort(key=lambda gc : gc["name"])
-        dpg.delete_item(self._selectables_container, children_only=True)
+        dpg.delete_item(self._selectables_list, children_only=True)
         for gc in self._gc_list:
             dpg.add_selectable(
                 label=gc["name"],
-                parent=self._selectables_container,
-                callback=self._gc_selectable_handler,
+                parent=self._selectables_list,
+                callback=self._selectable_click_handler,
                 user_data=gc
             )
 
@@ -115,35 +130,16 @@ class GCManagerForm:
         dpg.delete_item(self._parent, children_only=True)
         self.render(self._parent)
 
-    def _sort_gcs(self):
-        pass
 
-    def _gc_selectable_handler(self, sender): 
-        list_item_selected = dpg.get_value(sender)
         
-        if list_item_selected:
-            self._selected_list_item = sender
-            dpg.enable_item(self._update_gc_btn)
-            dpg.enable_item(self._delete_gc_btn)
-        else:
-            self._selected_list_item = None
-            dpg.disable_item(self._update_gc_btn)
-            dpg.disable_item(self._delete_gc_btn)
-
-        selectables = dpg.get_item_children(self._selectables_container)[1]
-        for item in selectables:
-            if item != sender:
-                dpg.set_value(item, False)
-        
-
     def clear(self):
-        """ Resets the GC Manager form to it's default state, no items selected. """
-        selectables = dpg.get_item_children(self._selectables_container)[1]
+        """ Sets the GC Manager form to it's default state, no items selected. """
+        selectables = dpg.get_item_children(self._selectables_list)[1]
         for item in selectables:
             dpg.set_value(item, False)
-        self._selected_list_item = None
-        dpg.disable_item(self._update_gc_btn)
-        dpg.disable_item(self._delete_gc_btn)
+        self._toggled_selectable = None
+        dpg.disable_item(self._edit_btn)
+        dpg.disable_item(self._delete_btn)
 
     def render(self, parent):
         self._parent = parent
