@@ -4,25 +4,65 @@ from collections.abc import Callable
 from Components.InputTextForm import InputTextForm
 from Components.ConfirmationForm import ConfirmationForm
 
-class GCManagerForm:
-    def __init__(self, mode:int|str):
-        """ Is used to manage general contractors """
+class ManagerForm:
+    def __init__(self):
+        """ 
+            User interface for managing project managers and general contractors. 
+        """
         self._db = Database()
-        self._gc_data = self._db.get_all_gen_contractors()
+        self._data = []
         self._input_form = InputTextForm(input_label="Name", cancel_btn_callback=self._return_to_gc_manager)
         self._confirmation_form = ConfirmationForm(cancel_btn_callback=self._return_to_gc_manager)
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
                 with dpg.child_window(width=240, height=200) as self._selectables_list:
-                    for gc in self._gc_data:
-                        dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._selectable_click_handler)
+                    pass
+                    # for gc in self._gc_data:
+                    #     dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._selectable_click_handler)
 
                 with dpg.child_window(border=False, height=200):
                     self._add_btn = dpg.add_button(label="Add", callback=self._add_btn_click_handler, width=55)
                     self._edit_btn = dpg.add_button(label="Edit", callback=self._edit_btn_click_handler, enabled=False, width=55)
                     self._delete_btn = dpg.add_button(label="Delete", callback=self._delete_btn_click_handler, enabled=False, width=55)
                     self._back_btn = dpg.add_button(label="Back", width=55)
+
+    def set_form_mode(self, mode:str) -> None:
+        """ Toggles the function of the form between two states, PM and GC. """
+        dpg.delete_item(self._selectables_list, children_only=True)
+        if mode == "pm":
+            self._init_pm_manager()
+        elif mode == "gc":
+            self._init_gc_manager()
+        else: raise Exception(f"Unexpected arg supplied to parameter 'mode'. Expected 'pm' or 'gc', instead received {mode}.")
+        
+    def _init_pm_manager(self):
+        dpg.set_item_label(self._parent, "PM Manager")
+        self._data = self._db.get_all_project_mgrs()
+        for pm in self._data:
+            dpg.add_selectable(
+                parent=self._selectables_list,
+                label=pm["name"],
+                callback=self._selectable_click_handler,
+                user_data=pm
+            )
+            dpg.set_item_callback(self._add_btn)
+            dpg.set_item_callback(self._edit_btn)
+            dpg.set_item_callback(self._delete_btn)
+
+    def _init_gc_manager(self):
+        dpg.set_item_label(self._parent, "GC Manager")
+        self._data = self._db.get_all_gen_contractors() # get data
+        for gc in self._data: # populate list
+            dpg.add_selectable(
+                parent=self._selectables_list,
+                label=gc["name"],
+                callback=self._selectable_click_handler,
+                user_data=gc
+            )
+            dpg.set_item_callback(self._add_btn)
+            dpg.set_item_callback(self._edit_btn)
+            dpg.set_item_callback(self._delete_btn)
 
     def _selectable_click_handler(self, sender) -> None:
         """ Toggles selectable on/off, only one item toggled on max. """
@@ -111,14 +151,14 @@ class GCManagerForm:
         self._return_to_gc_manager()
 
     def _update_gc_selectables(self):
-        self._gc_data.sort(key=lambda gc : gc["name"])
+        self._data.sort(key=lambda elem : elem["name"])
         dpg.delete_item(self._selectables_list, children_only=True)
-        for gc in self._gc_data:
+        for elem in self._data:
             dpg.add_selectable(
-                label=gc["name"],
+                label=elem["name"],
                 parent=self._selectables_list,
                 callback=self._selectable_click_handler,
-                user_data=gc
+                user_data=elem
             )
 
     def _return_to_gc_manager(self) -> None:

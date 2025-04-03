@@ -1,12 +1,12 @@
 import dearpygui.dearpygui as dpg
 from Database import Database
-from Components.GCManagerForm import GCManagerForm
+from Components.ManagerForm import ManagerForm
 
 class ProjectForm:
     def __init__(self):
         self._db = Database()
-        self._gc_manager = GCManagerForm()
-        self._gc_manager.set_back_btn_callback(self._return_to_proj_form)
+        self._mgr_form = ManagerForm()
+        self._mgr_form.set_back_btn_callback(self._return_to_proj_form)
         
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
@@ -18,14 +18,14 @@ class ProjectForm:
                 for pm in self._db.get_all_project_mgrs():
                     pm_names.append(pm["name"])
                 self._pm_combo = dpg.add_combo(pm_names, default_value="", width=184)
-                dpg.add_button(label="Manage PMs", callback=self._pm_manager_btn_handler)
+                dpg.add_button(label="Manage PMs", callback=self._manage_pms_btn_click_handler)
             with dpg.group(horizontal=True):
                 self._gc_combo_label = dpg.add_text("GC", indent=28)
                 gc_names = []
                 for gc in self._db.get_all_gen_contractors():
                     gc_names.append(gc["name"])
                 self._gc_combo = dpg.add_combo(gc_names, default_value="", width=184)
-                dpg.add_button(label="Manage GCs", callback=self._gc_manager_btn_handler)
+                dpg.add_button(label="Manage GCs", callback=self._manage_gcs_btn_click_handler)
             with dpg.group(horizontal=True):
                 self._name_input_label = dpg.add_text("Name", indent=14)
                 self._name_text_input = dpg.add_input_text(width=-1)
@@ -76,13 +76,12 @@ class ProjectForm:
                 dpg.configure_item(label, color=(255,255,255))
         dpg.show_item(self._feedback_text)
 
-    def _gc_manager_btn_handler(self):
-        dpg.set_item_label(self._parent, "GC Manager")
+    def _manage_gcs_btn_click_handler(self):
         dpg.delete_item(self._parent, children_only=True)
-        self._gc_manager.clear()
-        self._gc_manager.render(self._parent)
+        self._mgr_form.clear()
+        self._mgr_form.render(self._parent)
         
-    def _pm_manager_btn_handler(self):
+    def _manage_pms_btn_click_handler(self):
         pass
 
     def _cancel_btn_handler(self):
