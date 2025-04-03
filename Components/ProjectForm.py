@@ -4,15 +4,14 @@ from Components.GCManagerForm import GCManagerForm
 
 class ProjectForm:
     def __init__(self):
-        # self.__width = 322
-        # self.__height = 127
         self._db = Database()
-        self._gc_manager = GCManagerForm(self._return_to_proj_form)
-
+        self._gc_manager = GCManagerForm()
+        self._gc_manager.set_back_btn_callback(self._return_to_proj_form)
+        
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
                 self._job_id_input_label = dpg.add_text("Job ID")
-                self._job_id_input_text = dpg.add_input_text(decimal=True, width=55)
+                self._job_id_text_input = dpg.add_input_text(decimal=True, width=55)
             with dpg.group(horizontal=True):
                 self._pm_combo_label = dpg.add_text("PM", indent=28)
                 pm_names = []
@@ -20,7 +19,6 @@ class ProjectForm:
                     pm_names.append(pm["name"])
                 self._pm_combo = dpg.add_combo(pm_names, default_value="", width=184)
                 dpg.add_button(label="Manage PMs", callback=self._pm_manager_btn_handler)
-                
             with dpg.group(horizontal=True):
                 self._gc_combo_label = dpg.add_text("GC", indent=28)
                 gc_names = []
@@ -28,15 +26,11 @@ class ProjectForm:
                     gc_names.append(gc["name"])
                 self._gc_combo = dpg.add_combo(gc_names, default_value="", width=184)
                 dpg.add_button(label="Manage GCs", callback=self._gc_manager_btn_handler)
-
             with dpg.group(horizontal=True):
                 self._name_input_label = dpg.add_text("Name", indent=14)
-                self._name_input_text = dpg.add_input_text(width=-1)
-
+                self._name_text_input = dpg.add_input_text(width=-1)
             self._feedback_text = dpg.add_text("Please make sure all fields are entered.", color=(220,53,69), show=False)
-
             dpg.add_separator()
-
             with dpg.group(horizontal=True, indent=198):
                 self._create_project_btn = dpg.add_button(label="Create", callback=self._create_project_btn_handler)
                 self._cancel_btn = dpg.add_button(label="Cancel", callback=self._cancel_btn_handler)
@@ -54,10 +48,10 @@ class ProjectForm:
 
     def _get_form_values(self):
         return {
-            "job_id": dpg.get_value(self._job_id_input_text),
-            "name": dpg.get_value(self._name_input_text),
+            "job_id": dpg.get_value(self._job_id_text_input),
+            "pm": dpg.get_value(self._pm_combo),
             "gc": dpg.get_value(self._gc_combo),
-            "pm": dpg.get_value(self._pm_combo)
+            "name": dpg.get_value(self._name_text_input)
         }
 
     def _is_form_completed(self) -> bool: 
@@ -67,10 +61,10 @@ class ProjectForm:
 
     def _get_form_items(self):
         return [
-            (self._job_id_input_label, self._job_id_input_text),
+            (self._job_id_input_label, self._job_id_text_input),
             (self._pm_combo_label, self._pm_combo),
             (self._gc_combo_label, self._gc_combo),
-            (self._name_input_label, self._name_input_text)
+            (self._name_input_label, self._name_text_input)
         ]
 
     def _show_feedback(self):
@@ -95,39 +89,6 @@ class ProjectForm:
         dpg.hide_item(self._parent)        
         dpg.delete_item(self._parent, children_only=True)
 
-    # def __render_gcm(self):
-    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
-    #     y = int((dpg.get_viewport_height()/2) - (235/2))
-
-    #     dpg.set_item_pos(self.__id, [x,y])
-    #     dpg.hide_item(self.__new_project_form)
-    #     dpg.hide_item(self.__gcm_form)
-    #     self.__set_modal_title("GC Manager")
-    #     dpg.show_item(self.__gcm)
-
-    #     if not dpg.is_item_visible(self.__new_project_form):
-    #         dpg.hide_item(self.__gcm)
-    #         dpg.hide_item(self.__gcm_form)
-    #         self.__set_modal_title("Create New Project")
-    #         dpg.show_item(self.__new_project_form)
-
-    # def show(self):
-    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
-    #     y = int((dpg.get_viewport_height()/2) - (self.__height/2))
-
-    #     dpg.set_item_pos(self.__id, [x, y])
-    #     dpg.show_item(self.__id)
-
-    def clear(self) -> None:
-        """ Sets the form back to its default state. """
-        form_items = self._get_form_items()
-        for label, input in form_items:
-            dpg.configure_item(label, color=(255,255,255))
-            dpg.set_value(input, "")
-        dpg.hide_item(self._feedback_text)
-        
-
-
     def _return_to_proj_form(self) -> None:
         """ Callback for back button of the GC Manager. """
         dpg.set_item_label(self._parent, "Create New Project")
@@ -151,9 +112,36 @@ class ProjectForm:
             gc_names.append(gc["name"])
         dpg.configure_item(self._gc_combo, items=gc_names)
 
+    # PUBLIC
+
+    def clear(self) -> None:
+        """ Sets the form back to its default state. """
+        form_items = self._get_form_items()
+        for label, input in form_items:
+            dpg.configure_item(label, color=(255,255,255))
+            dpg.set_value(input, "")
+        dpg.hide_item(self._feedback_text)
+
     def render(self, parent:int|str) -> None:
         """ Unstages the component as a child of the parent item. """
         self._parent = parent
         dpg.push_container_stack(self._parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
+
+    def set_projects_list_id(self, id:int|str) -> None:
+        """ Sets the parent for newly created project items, should be the project explorer. """
+        self._projects_list = id
+
+    # def __render_gcm(self):
+    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+    #     y = int((dpg.get_viewport_height()/2) - (235/2))
+
+    #     dpg.set_item_pos(self.__id, [x,y])
+ 
+    # def show(self):
+    #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
+    #     y = int((dpg.get_viewport_height()/2) - (self.__height/2))
+
+    #     dpg.set_item_pos(self.__id, [x, y])
+    #     dpg.show_item(self.__id)

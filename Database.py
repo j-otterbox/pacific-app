@@ -16,9 +16,22 @@ class Database:
         self._cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
         self._conn.commit()
 
-    def create_new_pm(self, name):
-        self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
-        self._conn.commit()
+    def create_new_pm(self, name) -> dict:
+        """ Create a new project mananger under the given name, returns new record on success. """
+        resp = self._create_response()
+        try:
+            self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
+            query_results = self._cursor.fetchall()
+            query_results[0] = self._pm_factory(query_results[0])
+            self._conn.commit()
+            resp["success"] = True
+            resp["data"] = query_results
+
+        except sqlite3.IntegrityError as err:
+            resp["success"] = False
+            if "UNIQUE constraint failed" in str(err): 
+                resp["msg"] = "There is already a PM that goes by this name."
+        return resp
 
     def create_gen_contractor(self, name) -> dict:
         """
@@ -39,7 +52,7 @@ class Database:
                 resp["msg"] = "There is already a GC that goes by this name."
         return resp
 
-    def create_new_project(self, payload:dict) -> None:
+    def create_new_project(self, payload:dict) -> dict:
         self._cursor.execute("INSERT INTO projects (job_id, pm, gc, name) VALUES (:job_id, :pm, :gc, :name)", payload)
         self._conn.commit()
 
@@ -74,6 +87,13 @@ class Database:
         for idx, gc in enumerate(gc_list):
             gc_list[idx] = self._gc_factory(gc)
         return gc_list
+
+    def get_all_projects(self):
+        resp = self._cursor.execute("SELECT rowid, * FROM projects ORDER BY gc")
+        projects_list = resp.fetchall()
+        for idx, project in enumerate(projects_list):
+            projects_list[idx] = self._project_factory(project)
+        return projects_list
 
     def update_user_pass_hash(self, id, pass_hash):
         self._cursor.execute("UPDATE users SET pass_hash=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (pass_hash, id))
@@ -127,6 +147,14 @@ class Database:
             "modified_date": gc[3]
         }
 
+    def _project_factory(self, project:tuple):
+        return {
+            "job_id": project[0],
+            "pm": project[1],
+            "gc": project[2],
+            "name": project[3]
+        }
+
     def _create_response(self, success:bool=False, msg:str="", data:list=[]):
         return {
             "success": success,
@@ -162,7 +190,7 @@ def _create_tables(conn:sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, pass_hash TEXT, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS project_managers (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS general_contractors (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
-        CREATE TABLE IF NOT EXISTS projects (job_id INTEGER, pm INTEGER, gc INTEGER, name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS projects (job_id INTEGER UNIQUE, pm INTEGER, gc INTEGER, name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (pm) REFERENCES project_managers (rowid), FOREIGN KEY (gc) REFERENCES general_contractors (rowid));
         CREATE TABLE IF NOT EXISTS carpet (
             project_id INTEGER,
             scope TEXT,

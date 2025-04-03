@@ -5,24 +5,24 @@ from Components.InputTextForm import InputTextForm
 from Components.ConfirmationForm import ConfirmationForm
 
 class GCManagerForm:
-    def __init__(self, back_btn_callback: Callable=None):
+    def __init__(self, mode:int|str):
+        """ Is used to manage general contractors """
         self._db = Database()
-        self._gc_list = self._db.get_all_gen_contractors()
+        self._gc_data = self._db.get_all_gen_contractors()
         self._input_form = InputTextForm(input_label="Name", cancel_btn_callback=self._return_to_gc_manager)
         self._confirmation_form = ConfirmationForm(cancel_btn_callback=self._return_to_gc_manager)
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
                 with dpg.child_window(width=240, height=200) as self._selectables_list:
-                    for gc in self._gc_list:
+                    for gc in self._gc_data:
                         dpg.add_selectable(label=gc["name"], user_data=gc, callback=self._selectable_click_handler)
 
                 with dpg.child_window(border=False, height=200):
                     self._add_btn = dpg.add_button(label="Add", callback=self._add_btn_click_handler, width=55)
                     self._edit_btn = dpg.add_button(label="Edit", callback=self._edit_btn_click_handler, enabled=False, width=55)
                     self._delete_btn = dpg.add_button(label="Delete", callback=self._delete_btn_click_handler, enabled=False, width=55)
-                    if back_btn_callback is not None:
-                        self._back_btn = dpg.add_button(label="Back", callback=back_btn_callback, width=55)
+                    self._back_btn = dpg.add_button(label="Back", width=55)
 
     def _selectable_click_handler(self, sender) -> None:
         """ Toggles selectable on/off, only one item toggled on max. """
@@ -62,7 +62,7 @@ class GCManagerForm:
 
             if resp["success"]:
                 new_gc = resp["data"][0]
-                self._gc_list.append(new_gc)
+                self._gc_data.append(new_gc)
                 self._update_gc_selectables()
                 self._return_to_gc_manager()
             else:
@@ -103,17 +103,17 @@ class GCManagerForm:
     def _delete_gc(self):
         selected_gc = dpg.get_item_user_data(self._toggled_selectable)
         self._db.delete_gen_contractor(selected_gc["id"])
-        for idx, gc in enumerate(self._gc_list):
+        for idx, gc in enumerate(self._gc_data):
             if selected_gc["id"] == gc["id"]:
-                self._gc_list.pop(idx)
+                self._gc_data.pop(idx)
                 break
         self._update_gc_selectables()
         self._return_to_gc_manager()
 
     def _update_gc_selectables(self):
-        self._gc_list.sort(key=lambda gc : gc["name"])
+        self._gc_data.sort(key=lambda gc : gc["name"])
         dpg.delete_item(self._selectables_list, children_only=True)
-        for gc in self._gc_list:
+        for gc in self._gc_data:
             dpg.add_selectable(
                 label=gc["name"],
                 parent=self._selectables_list,
@@ -130,7 +130,9 @@ class GCManagerForm:
         dpg.delete_item(self._parent, children_only=True)
         self.render(self._parent)
 
-
+    def set_back_btn_callback(self, callback:Callable) -> None:
+        """ Sets the back btn callback which should be provided by the parent component. """
+        dpg.set_item_callback(self._back_btn, )
         
     def clear(self):
         """ Sets the GC Manager form to it's default state, no items selected. """
