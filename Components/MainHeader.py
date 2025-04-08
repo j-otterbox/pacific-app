@@ -1,7 +1,7 @@
 import dearpygui.dearpygui as dpg
 
 class MainHeader:
-    def __init__(self, parent:int): 
+    def __init__(self, parent:int|str): 
         with dpg.table(parent=parent, header_row=False):
             dpg.add_table_column()
             dpg.add_table_column(width_fixed=True)
