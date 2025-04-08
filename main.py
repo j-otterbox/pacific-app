@@ -1,6 +1,6 @@
-import dearpygui.dearpygui as dpg
+from os import getenv
 from Database import initialize_db
-
+import dearpygui.dearpygui as dpg
 from Components.MainHeader import MainHeader
 from Components.LoginForm import LoginForm
 
@@ -14,8 +14,9 @@ if __name__ == "__main__":
     dpg.create_context()
     register_textures()
 
+    PRIMARY_WINDOW = getenv("PRIMARY_WINDOW")
     dpg.create_viewport(title="Pacific Carpets LLC", width=405, height=200, resizable=True)
-    with dpg.window() as primary_window:
+    with dpg.window(tag=PRIMARY_WINDOW) as primary_window:
         MainHeader(parent=primary_window)
         with dpg.child_window(border=False) as content_container:
             LoginForm().unstage(parent=content_container)
