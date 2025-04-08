@@ -1,12 +1,10 @@
 import dearpygui.dearpygui as dpg
 from hashlib import sha256
 from time import sleep
-from .Dashboard import Dashboard
+from Views.Dashboard import Dashboard
 from Database import Database
 
-# TODO: add logging to this action
-
-class Login():
+class LoginForm():
     def __init__(self):
         with dpg.stage() as self._stage_id:
             with dpg.table(header_row=False):
@@ -46,7 +44,7 @@ class Login():
             dpg.set_item_pos(welcome_msg, [135, 40])
             sleep(1)
             dpg.delete_item(welcome_msg)
-            Dashboard().render(self._parent)
+            Dashboard().unstage(self._parent)
         else:
             dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
             dpg.show_item(self._feedback_text_row_id)
@@ -58,12 +56,16 @@ class Login():
             return user["pass_hash"] == password_hash_str
         return False
 
-    def _exit(self):
+    def _exit(self) -> None:
+        """ Destroys the current context, quitting the app. """
         dpg.destroy_context()
 
-    def render(self, parent):
+    def unstage(self, parent:int) -> None:
+        """ 
+            Pushes the given parent to the container stack and unstages the component as a child item.
+        """
         self._parent = parent
-        dpg.push_container_stack(parent)
+        dpg.push_container_stack(self._parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
 

@@ -5,8 +5,8 @@ from Components.ManagerForm import ManagerForm
 class ProjectForm:
     def __init__(self):
         self._db = Database()
-        self._mgr_form = ManagerForm()
-        self._mgr_form.set_back_btn_callback(self._return_to_proj_form)
+        self._manager_form = ManagerForm()
+        self._manager_form.set_back_btn_callback(self._return_to_proj_form)
         
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
@@ -76,14 +76,16 @@ class ProjectForm:
                 dpg.configure_item(label, color=(255,255,255))
         dpg.show_item(self._feedback_text)
 
+    def _manage_pms_btn_click_handler(self):
+        dpg.delete_item(self._parent, children_only=True)
+        self._manager_form.set_mode("PM")
+        self._manager_form.render(self._parent)
+
     def _manage_gcs_btn_click_handler(self):
         dpg.delete_item(self._parent, children_only=True)
-        self._mgr_form.clear()
-        self._mgr_form.render(self._parent)
+        self._manager_form.set_mode("GC")
+        self._manager_form.render(self._parent)
         
-    def _manage_pms_btn_click_handler(self):
-        pass
-
     def _cancel_btn_handler(self):
         dpg.hide_item(self._parent)        
         dpg.delete_item(self._parent, children_only=True)
@@ -111,8 +113,6 @@ class ProjectForm:
             gc_names.append(gc["name"])
         dpg.configure_item(self._gc_combo, items=gc_names)
 
-    # PUBLIC
-
     def clear(self) -> None:
         """ Sets the form back to its default state. """
         form_items = self._get_form_items()
@@ -121,9 +121,12 @@ class ProjectForm:
             dpg.set_value(input, "")
         dpg.hide_item(self._feedback_text)
 
-    def render(self, parent:int|str) -> None:
-        """ Unstages the component as a child of the parent item. """
+    def set_parent(self, parent:int):
         self._parent = parent
+        self._manager_form.set_parent(parent)
+
+    def render(self) -> None:
+        """ Unstages the component as a child of the parent item. """
         dpg.push_container_stack(self._parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
