@@ -12,6 +12,8 @@ class EventManager:
         self._listeners[event_type].remove(listener)
 
     def emit(self, event_type:str, data:dict):
+        print(event_type)
         for listener in self._listeners[event_type]:
+            print(listener)
             listener.update(data) # every controller has a generic update function specifically for events
     
