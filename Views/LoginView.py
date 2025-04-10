@@ -3,8 +3,9 @@ from hashlib import sha256
 from time import sleep
 from Views.Dashboard import Dashboard
 from Database import Database
+from Util import clear_content_window
 
-class LoginForm():
+class LoginView():
     def __init__(self):
         with dpg.stage() as self._stage_id:
             with dpg.table(header_row=False):
@@ -60,12 +61,13 @@ class LoginForm():
         """ Destroys the current context, quitting the app. """
         dpg.destroy_context()
 
-    def unstage(self, parent:int) -> None:
-        """ 
-            Pushes the given parent to the container stack and unstages the component as a child item.
-        """
+    def render(self, parent:int|str) -> None:
         self._parent = parent
-        dpg.push_container_stack(self._parent)
+        clear_content_window()
+        dpg.set_viewport_width(405)
+        dpg.set_viewport_height(200)
+        dpg.set_viewport_resizable(False)   
+        dpg.push_container_stack(parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
 
