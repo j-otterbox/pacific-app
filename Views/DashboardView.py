@@ -2,9 +2,7 @@ import dearpygui.dearpygui as dpg
 from Components.ProjectForm import ProjectForm
     
 class DashboardView():
-    def __init__(self, login_view):
-        self._login_view = login_view
-        print(self._login_view)
+    def __init__(self):
         self._project_form = ProjectForm()
         
         with dpg.stage() as self._stage_id:
@@ -36,11 +34,8 @@ class DashboardView():
     def _clear_modal(self):
         dpg.delete_item(self._modal, children_only=True)
 
-    def unstage(self, parent:int) -> None:
-        """ 
-            Pushes the given parent to the container stack and unstages the component as a child item.
-        """
-        self._parent = parent
-        dpg.push_container_stack(self._parent)
+    def render(self, parent:int|str) -> None:
+        dpg.show_item_registry()
+        dpg.push_container_stack(parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()

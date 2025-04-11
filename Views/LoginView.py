@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from Util import clear_content_window
+from Util import named_items, clear_content_window
 from collections.abc import Callable
 
 class LoginView():
@@ -27,7 +27,8 @@ class LoginView():
                         with dpg.group(horizontal=True):
                             dpg.add_text(indent=206)
                             self._submit_btn = dpg.add_button(label="Submit")
-                            self._exit_btn = dpg.add_button(label="Exit")
+                            self._exit_btn = dpg.add_button(label="Exit", callback=self._exit_btn_click_handler)
+
 
     def get_username(self) -> str:
         return dpg.get_value(self._username_text_input)
@@ -38,34 +39,19 @@ class LoginView():
     def set_submit_btn_callback(self, callback:Callable) -> None:
         dpg.set_item_callback(self._submit_btn, callback)
 
-    def set_exit_btn_callback(self, callback:Callable) -> None:
-        dpg.set_item_callback(self._exit_btn, callback)
-
-    # def _submit(self):
-    #     username = dpg.get_value(self._username_text_input)
-    #     password = dpg.get_value(self._password_text_input)
-    #     bytes = bytearray(password, encoding="utf8")
-    #     hash_obj = sha256(bytes)
-    #     pass_hash_str = hash_obj.hexdigest()
-
-    #     if self._is_valid_login(username, pass_hash_str) or True:
-    #         dpg.delete_item(self._parent, children_only=True)
-    #         welcome_msg = dpg.add_text(f"Welcome, {username}.", parent=self._parent)
-    #         dpg.set_item_pos(welcome_msg, [135, 40])
-    #         sleep(1)
-    #         dpg.delete_item(welcome_msg)
-    #         Dashboard().unstage(self._parent)
-    #     else:
-    #         dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
-    #         dpg.show_item(self._feedback_text_row_id)
-
-    def _exit(self) -> None:
-        """ Destroys the current context, quitting the app. """
+    def _exit_btn_click_handler(self) -> None:
         dpg.destroy_context()
 
+    def render_welcome_msg(self, username:str):
+        content_window = named_items.content_window.value
+        welcome_msg = dpg.add_text(f"Welcome, {username}.", parent=content_window)
+        dpg.set_item_pos(welcome_msg, [135, 40])
+
+    def show_invalid_login_msg(self):
+        dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
+        dpg.show_item(self._feedback_text_row_id)
+
     def render(self, parent:int|str) -> None:
-        self._parent = parent
-        clear_content_window()
         dpg.set_viewport_width(405)
         dpg.set_viewport_height(200)
         dpg.set_viewport_resizable(False)   
