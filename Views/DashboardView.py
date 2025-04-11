@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from Components.ProjectForm import ProjectForm
+from Views.ProjectFormView import ProjectForm
     
 class DashboardView():
     def __init__(self):
