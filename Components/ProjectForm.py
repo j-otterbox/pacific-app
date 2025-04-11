@@ -1,9 +1,11 @@
 import dearpygui.dearpygui as dpg
 from Database import Database
 from Components.ManagerForm import ManagerForm
+from Events.EventManager import EventManager
 
 class ProjectForm:
     def __init__(self):
+        self.events = EventManager()
         self._db = Database()
         self._manager_form = ManagerForm()
         self._manager_form.set_back_btn_callback(self._return_to_proj_form)
@@ -121,19 +123,11 @@ class ProjectForm:
             dpg.set_value(input, "")
         dpg.hide_item(self._feedback_text)
 
-    def set_parent(self, parent:int):
-        self._parent = parent
-        self._manager_form.set_parent(parent)
-
     def render(self) -> None:
         """ Unstages the component as a child of the parent item. """
         dpg.push_container_stack(self._parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
-
-    def set_projects_list_id(self, id:int|str) -> None:
-        """ Sets the parent for newly created project items, should be the project explorer. """
-        self._projects_list = id
 
     # def __render_gcm(self):
     #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))

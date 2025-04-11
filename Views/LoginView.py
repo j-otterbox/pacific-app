@@ -29,7 +29,6 @@ class LoginView():
                             self._submit_btn = dpg.add_button(label="Submit")
                             self._exit_btn = dpg.add_button(label="Exit", callback=self._exit_btn_click_handler)
 
-
     def get_username(self) -> str:
         return dpg.get_value(self._username_text_input)
 
