@@ -162,7 +162,7 @@ class Database:
             "data": data
         }
 
-def initialize_db():
+def init_database():
     """
         Initializes the DB with all required tables and default data 
         if the DB file does not exist in the top-level directory. 

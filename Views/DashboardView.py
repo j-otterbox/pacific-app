@@ -1,48 +1,51 @@
 import dearpygui.dearpygui as dpg
-from Components.ProjectForm import ProjectForm
-from Models.App import App
-from Util import set_modal_label, show_modal
+from Views.ProjectFormView import ProjectForm
     
-class Dashboard():
+class DashboardView():
     def __init__(self):
-        with dpg.group(horizontal=True):
-            with dpg.child_window(height=-1, width=325, menubar=True):
-                with dpg.menu_bar():
-                    with dpg.menu(label="Project Explorer"):
-                        dpg.add_menu_item(label="New Project", callback=self._new_project_btn_click_handler)
+        self._project_form = ProjectForm()
 
-                    # menu_id = dpg.add_menu(label="Project Explorer")
-                    # dpg.add_menu_item(label="New Project", parent=menu_id, callback=self._new_project_btn_click_handler)
-                projects_list = App.projects_list.value
-                dpg.add_child_window(tag=projects_list, border=False)
+        with dpg.stage() as self._stage_id:
+            with dpg.group(horizontal=True):
+                with dpg.child_window(height=-1, width=325, menubar=True):
+                    with dpg.menu_bar():
+                        with dpg.menu(label="Project Explorer"):
+                            self._new_project_menu_item = dpg.add_menu_item(label="New Project")
+                    
+                    with dpg.child_window(border=False) as self._projects_list:
+                        pass # projects from database go here
 
-            with dpg.child_window(height=-1, menubar=True):
-                with dpg.menu_bar():
-                    dpg.add_menu(label="What's going on...")
+                with dpg.child_window(height=-1, menubar=True):
+                    with dpg.menu_bar():
+                        dpg.add_menu(label="What's going on...")
 
-        modal_tag = App.modal.value
-        self._modal = dpg.add_window(
-            width=322,
-            autosize=True,
-            min_size=[322, 80],
-            modal=True, no_collapse=True,
-            on_close=self._clear_modal,
-            show=False,
-            tag=modal_tag
-        )
+            with dpg.window(width=322, autosize=True, min_size=[322, 80], modal=True, no_collapse=True, on_close=self.clear_modal, show=False) as self._modal:
+                pass
+        
+    def get_project_form(self):
+        return self._project_form
 
-    def _new_project_btn_click_handler(self):
-        set_modal_label("Create New Project")
+    def set_modal_label(self, label:str):
+        dpg.set_item_label(self._modal, label)
+
+    def show_modal(self):
+        dpg.show_item(self._modal)
+        
+    def hide_modal(self):
+        dpg.hide_item(self._modal)
+
+    def _new_project_btn_handler(self):
+        self.set_modal_label("Create New Project")
         self._project_form.render()
-        show_modal()
+        self._project_form.clear()
+        dpg.show_item(self._modal)
 
-    def _clear_modal(self):
+    def clear_modal(self):
         dpg.delete_item(self._modal, children_only=True)
 
-    def render(self) -> None:
-        content_container = App.content_container.value
-        dpg.set_viewport_width(600)
+    def render(self, parent:int|str) -> None:
+        dpg.set_viewport_width(700)
         dpg.set_viewport_height(400)
-        dpg.push_container_stack(content_container)
+        dpg.push_container_stack(parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()

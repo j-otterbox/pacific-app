@@ -1,11 +1,16 @@
 import dearpygui.dearpygui as dpg
 from Database import Database
 from Components.ManagerForm import ManagerForm
+<<<<<<< HEAD:Components/ProjectForm.py
 from Models.App import App
 from Util import set_modal_label, clear_modal
+=======
+from Events.EventManager import EventManager
+>>>>>>> b7e22eee6158b72b4fbe85dee1827beff00b5237:Views/ProjectFormView.py
 
 class ProjectForm:
     def __init__(self):
+        self.events = EventManager()
         self._db = Database()
         self._manager_form = ManagerForm()
         self._manager_form.set_back_btn_callback(self._return_to_project_form)
