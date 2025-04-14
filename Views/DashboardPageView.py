@@ -1,9 +1,10 @@
 import dearpygui.dearpygui as dpg
-from Views.ProjectFormView import ProjectForm
-    
-class DashboardView():
+from Views.ProjectFormView import ProjectFormView
+from collections.abc import Callable
+
+class DashboardPageView():
     def __init__(self):
-        self._project_form = ProjectForm()
+        self._project_form = ProjectFormView()
 
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
@@ -25,12 +26,19 @@ class DashboardView():
     def get_project_form(self):
         return self._project_form
 
+    def get_modal(self) -> int:
+        """ Returns the id of the dashboard modal. """
+        return self._modal
+
     def set_modal_label(self, label:str):
         dpg.set_item_label(self._modal, label)
 
     def show_modal(self):
         dpg.show_item(self._modal)
         
+    def set_new_project_menu_item_callback(self, callback:Callable):
+        dpg.set_item_callback(self._new_project_menu_item, callback)
+
     def hide_modal(self):
         dpg.hide_item(self._modal)
 

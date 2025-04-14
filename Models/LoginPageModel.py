@@ -1,7 +1,7 @@
 from Database import Database
 from hashlib import sha256
 
-class UserModel:
+class LoginPageModel:
     def __init__(self):
         self._username = ""
     

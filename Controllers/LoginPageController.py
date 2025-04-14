@@ -1,15 +1,14 @@
 
 from time import sleep
-
-from Models.UserModel import UserModel
-from Views.LoginView import LoginView
+from Models.LoginPageModel import LoginPageModel
+from Views.LoginPageView import LoginPageView
 from Events.EventManager import EventManager
-from Util import clear_content_window
+from util import clear_content_window
 
-class LoginController:
+class LoginPageController:
     def __init__(self):
-        self._model = UserModel()
-        self._view = LoginView()
+        self._model = LoginPageModel()
+        self._view = LoginPageView()
         self.events = EventManager()
 
         self._view.set_submit_btn_callback(self._submit_btn_click_handler)
@@ -30,10 +29,8 @@ class LoginController:
         else:
             self._view.show_invalid_login_msg()
 
-    def render_view(self, parent:int|str):
+    def render(self, parent:int|str):
         self._view.render(parent)
 
     def update(data:dict):
         pass
-
-

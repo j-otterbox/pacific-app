@@ -12,11 +12,11 @@ class Database:
         self._conn = sqlite3.connect(DATABASE_NAME)
         self._cursor = self._conn.cursor()
 
-    def create_new_user(self, username, pass_hash):
+    def create_user(self, username, pass_hash):
         self._cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
         self._conn.commit()
 
-    def create_new_pm(self, name) -> dict:
+    def create_project_mgr(self, name) -> dict:
         """ Create a new project mananger under the given name, returns new record on success. """
         resp = self._create_response()
         try:
@@ -52,11 +52,26 @@ class Database:
                 resp["msg"] = "There is already a GC that goes by this name."
         return resp
 
-    def create_new_project(self, payload:dict) -> dict:
-        self._cursor.execute("INSERT INTO projects (job_id, pm, gc, name) VALUES (:job_id, :pm, :gc, :name)", payload)
-        self._conn.commit()
+    def create_project(self, payload:dict) -> dict:
+        resp = self._create_response()
+        try:
+            self._cursor.execute("INSERT INTO projects (job_id, pm, gc, name) VALUES (:job_id, :pm, :gc, :name) RETURNING rowid, *", (payload))
+            query_results = self._cursor.fetchall()
+            query_results[0] = self._project_factory(query_results[0])
+            # self._conn.commit()
+            resp["success"] = True
+            resp["data"] = query_results
 
-    def create_new_material(self):
+        except sqlite3.IntegrityError as err:
+            err = str(err)
+            resp["success"] = False
+            if err == "UNIQUE constraint failed: projects.job_id": 
+                resp["msg"] = "job_id conflict"
+            elif err == "UNIQUE constraint failed: projects.name":
+                resp["msg"] = "name conflict"
+        return resp
+
+    def create_spec(self):
         self._cursor.execute()
         self._conn.commit()
 
@@ -149,10 +164,10 @@ class Database:
 
     def _project_factory(self, project:tuple):
         return {
-            "job_id": project[0],
-            "pm": project[1],
-            "gc": project[2],
-            "name": project[3]
+            "job_id": project[1],
+            "pm": project[2],
+            "gc": project[3],
+            "name": project[4]
         }
 
     def _create_response(self, success:bool=False, msg:str="", data:list=[]):
@@ -190,7 +205,7 @@ def _create_tables(conn:sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, pass_hash TEXT, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS project_managers (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS general_contractors (name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP);
-        CREATE TABLE IF NOT EXISTS projects (job_id INTEGER UNIQUE, pm INTEGER, gc INTEGER, name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (pm) REFERENCES project_managers (rowid), FOREIGN KEY (gc) REFERENCES general_contractors (rowid));
+        CREATE TABLE IF NOT EXISTS projects (job_id TEXT UNIQUE, pm INTEGER, gc INTEGER, name TEXT UNIQUE, create_date TEXT DEFAULT CURRENT_TIMESTAMP, modified_date TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (pm) REFERENCES project_managers (rowid), FOREIGN KEY (gc) REFERENCES general_contractors (rowid));
         CREATE TABLE IF NOT EXISTS carpet (
             project_id INTEGER,
             scope TEXT,
@@ -258,3 +273,18 @@ def _create_general_contractors(conn:sqlite3.Connection):
     ]
     cursor.executemany("INSERT INTO general_contractors (name) VALUES (?)", general_contractors)
     conn.commit()
+
+if __name__ == "__main__":
+    pass
+    # init_database()
+    # db = Database()
+    # new_project = {
+    #     "job_id": "000001",
+    #     "pm": "Lisa Green",
+    #     "gc": "W.E.O.",
+    #     "name": "Main Street 123"
+    # }
+    # resp = db.create_project(new_project)
+    # print(resp)
+    # for key, value in resp.items():
+    #     print(key, value)

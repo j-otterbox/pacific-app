@@ -1,8 +1,8 @@
 import dearpygui.dearpygui as dpg
-from Util import named_items, clear_content_window
+from util import named_items, clear_content_window
 from collections.abc import Callable
 
-class LoginView():
+class LoginPageView():
     def __init__(self):
         with dpg.stage() as self._stage_id:
             with dpg.table(header_row=False):
