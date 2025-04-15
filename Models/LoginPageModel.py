@@ -1,4 +1,4 @@
-from Database import Database
+from Modules.Database import Database
 from hashlib import sha256
 
 class LoginPageModel:

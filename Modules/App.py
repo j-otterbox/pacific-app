@@ -1,15 +1,15 @@
 import dearpygui.dearpygui as dpg
+import constants as c
 from Controllers.LoginPageController import LoginPageController
 from Controllers.DashboardPageController import DashboardPageController
 from Controllers.ProjectPageController import ProjectPageController
 from Components.MainHeader import MainHeader
-from Database import init_database
-from util import named_items
+from Modules.Database import init_database
 
 class App:
     def __init__(self, title:str):
         dpg.create_context()
-        dpg.create_viewport(title)
+        dpg.create_viewport(title=title)
         self._register_textures()
 
         self._login_page = LoginPageController()
@@ -22,25 +22,23 @@ class App:
     def _register_textures(self):
         width, height, channels, data = dpg.load_image("Assets/pac_c_logo.png")
         with dpg.texture_registry():
-            dpg.add_static_texture(width=width, height=height, default_value=data, tag="pac_c_logo")
+            dpg.add_static_texture(width=width, height=height, default_value=data, tag=c.PAC_LOGO)
 
-    def init_database(self):
+    def init_database(self) -> None:
         init_database()
 
-    def render_primary_window(self):
-        primary_window = named_items.primary_window.value
-        content_window = named_items.content_window.value
-        
-        with dpg.window(tag=primary_window):
-            MainHeader(parent=primary_window)
-            dpg.add_child_window(tag=content_window, border=False)
-            dpg.add_window(tag=named_items.modal, modal=True, show=False)
-        dpg.set_primary_window(primary_window, True)
+    def render_primary_window(self) -> None:
+        """ Creates the base template for the app which consists of a header and body. """        
+        with dpg.window(tag=c.PRIMARY_WINDOW):
+            MainHeader(parent=c.PRIMARY_WINDOW)
+            dpg.add_child_window(tag=c.CONTENT_WINDOW, border=False)
+            dpg.add_window(tag=c.MODAL, modal=True, show=False)
+        dpg.set_primary_window(c.PRIMARY_WINDOW, True)
 
-    def render_login(self):
-        self._login_page.render(named_items.content_window.value)
+    def render_login(self) -> None:
+        self._login_page.render(c.CONTENT_WINDOW)
 
-    def start_render_loop(self):
+    def start_render_loop(self) -> None:
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.start_dearpygui()

@@ -1,9 +1,9 @@
-
+import constants as c
 from Events.EventManager import EventManager
 from Views.DashboardPageView import DashboardPageView
 from collections.abc import Callable
 from Controllers.ProjectFormController import ProjectFormController
-from util import named_items
+
 
 class DashboardPageController:
     def __init__(self):
@@ -20,8 +20,7 @@ class DashboardPageController:
     def update(self, data:dict):
         if data["event_type"] == "login_success":
             print(f"username '{data["username"]}' has logged in.")
-            content_window = named_items.content_window.value
-            self._view.render(parent=content_window)
+            self._view.render(parent=c.CONTENT_WINDOW)
             
         if data["event_type"] == "new_project_created":
             print("new project item was created")

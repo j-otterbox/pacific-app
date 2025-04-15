@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from Database import Database
+from Modules.Database import Database
 from collections.abc import Callable
 from Components.InputTextForm import InputTextForm
 from Components.ConfirmationForm import ConfirmationForm

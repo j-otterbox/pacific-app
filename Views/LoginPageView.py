@@ -1,6 +1,6 @@
 import dearpygui.dearpygui as dpg
-from util import named_items, clear_content_window
 from collections.abc import Callable
+import constants as c
 
 class LoginPageView():
     def __init__(self):
@@ -42,8 +42,7 @@ class LoginPageView():
         dpg.destroy_context()
 
     def render_welcome_msg(self, username:str):
-        content_window = named_items.content_window.value
-        welcome_msg = dpg.add_text(f"Welcome, {username}.", parent=content_window)
+        welcome_msg = dpg.add_text(f"Welcome, {username}.", parent=c.CONTENT_WINDOW)
         dpg.set_item_pos(welcome_msg, [135, 40])
 
     def show_invalid_login_msg(self):

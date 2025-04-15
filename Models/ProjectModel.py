@@ -1,4 +1,4 @@
-from Database import Database
+from Modules.Database import Database
 
 class ProjectModel:
     def __init__(self):

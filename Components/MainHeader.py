@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from util import named_items
+import constants as c
 
 class MainHeader:
     def __init__(self, parent:int|str):
@@ -12,7 +12,7 @@ class MainHeader:
                 with dpg.table_cell():
                     pass
                 with dpg.table_cell():
-                    dpg.add_image(named_items.pacsee_logo.value)
+                    dpg.add_image(c.PAC_LOGO)
                 with dpg.table_cell():
                         pass
 

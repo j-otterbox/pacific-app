@@ -1,6 +1,5 @@
 
-import  dearpygui.dearpygui as dpg
-from App import App
+from Modules.App import App
 
 if __name__ == "__main__":
     app = App(title="Pacific Carpets LLC")
