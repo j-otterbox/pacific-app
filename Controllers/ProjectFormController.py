@@ -1,6 +1,6 @@
 from Models.ProjectModel import ProjectModel
 from Views.ProjectFormView import ProjectFormView
-from Events.EventManager import EventManager
+from Modules.EventManager import EventManager
 
 class ProjectFormController:
     def __init__(self):

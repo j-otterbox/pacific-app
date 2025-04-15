@@ -1,5 +1,5 @@
 import constants as c
-from Events.EventManager import EventManager
+from Modules.EventManager import EventManager
 from Views.DashboardPageView import DashboardPageView
 from collections.abc import Callable
 from Controllers.ProjectFormController import ProjectFormController

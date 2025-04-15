@@ -2,7 +2,7 @@
 from time import sleep
 from Models.LoginPageModel import LoginPageModel
 from Views.LoginPageView import LoginPageView
-from Events.EventManager import EventManager
+from Modules.EventManager import EventManager
 from Modules.GuiManager import ContentWindow
 
 class LoginPageController:
