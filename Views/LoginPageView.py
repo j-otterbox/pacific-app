@@ -57,4 +57,3 @@ class LoginPageView():
         dpg.push_container_stack(parent)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()
-

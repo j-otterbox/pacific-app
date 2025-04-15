@@ -1,11 +1,10 @@
 import sqlite3
 from time import strftime, gmtime
-from os import getenv
 from os.path import exists
-from dotenv import load_dotenv
+from dotenv import load_dotenv, get_key
 
 load_dotenv()
-DATABASE_NAME = getenv('DATABASE_NAME')
+DATABASE_NAME = get_key(".env", "DATABASE_NAME")
 
 class Database:
     def __init__(self):
@@ -233,8 +232,8 @@ def _create_tables(conn:sqlite3.Connection):
 
 def _create_admin_user(conn:sqlite3.Connection):
     cursor = conn.cursor()
-    username=getenv("ADMIN_USERNAME")
-    pass_hash = getenv("ADMIN_PASS_HASH")
+    username=get_key("ADMIN_USERNAME")
+    pass_hash = get_key("ADMIN_PASS_HASH")
     cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
     conn.commit()
 
