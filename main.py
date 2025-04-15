@@ -3,7 +3,7 @@ import  dearpygui.dearpygui as dpg
 from App import App
 
 if __name__ == "__main__":
-    app = App()
+    app = App(title="Pacific Carpets LLC")
     app.init_database()
     app.render_primary_window()
     app.render_login()

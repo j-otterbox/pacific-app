@@ -30,7 +30,7 @@ class App:
     def render_primary_window(self):
         primary_window = named_items.primary_window.value
         content_window = named_items.content_window.value
-                
+        
         with dpg.window(tag=primary_window):
             MainHeader(parent=primary_window)
             dpg.add_child_window(tag=content_window, border=False)
