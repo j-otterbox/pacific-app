@@ -133,6 +133,10 @@ class Database:
         self._cursor.execute("DELETE FROM general_contractors WHERE rowid=(?)", (id,))
         self._conn.commit()
 
+    def delete_project(self, id:int|str):
+        self._cursor.execute("DELETE FROM projects WHERE rowid=(?)", (id))
+        self._conn.commit()
+
     def _get_current_timestamp(self):
         return strftime("%Y-%m-%d %H:%M:%S", gmtime())
 

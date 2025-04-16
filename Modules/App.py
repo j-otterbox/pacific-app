@@ -17,6 +17,7 @@ class App:
     
         self._login_page.events.subscribe("login_success", self._dashboard_page)
         self._dashboard_page.events.subscribe("new_project_created", self._project_page)
+        self._project_page.events.subscribe("close_project", self._dashboard_page)
         # self._dashboard_page.subscribe("logout", self._login_page)
 
     def _register_textures(self):

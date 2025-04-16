@@ -1,11 +1,11 @@
-from Models.ProjectModel import ProjectModel
+from Models.ProjectFormModel import ProjectFormModel
 from Views.ProjectFormView import ProjectFormView
 from Modules.EventManager import EventManager
 from Modules.GuiManager import Modal
 
 class ProjectFormController:
     def __init__(self):
-        self._model = ProjectModel()
+        self._model = ProjectFormModel()
         self._view = ProjectFormView()
         self.events = EventManager()
 
@@ -19,12 +19,11 @@ class ProjectFormController:
     def _create_btn_click_handler(self):
         form_data = self._view.get_form_data()
         if self._model.validate(form_data):
-            print("form validated")
             resp = self._model.create_project(form_data)
             if resp["success"]:
                 self.events.emit({
                     "type": "new_project_created",
-                    "data": resp
+                    "data": resp["data"]
                 })
                 Modal.hide()
                 Modal.clear()
@@ -50,10 +49,4 @@ class ProjectFormController:
         return self._view._stage_id
 
     def render(self) -> None:
-        print("render proj form")
         self._view.render(self._parent)
-
-
-
-
-        

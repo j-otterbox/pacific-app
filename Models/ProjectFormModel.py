@@ -1,6 +1,6 @@
 from Modules.Database import Database
 
-class ProjectModel:
+class ProjectFormModel:
     def __init__(self):
         pass
 

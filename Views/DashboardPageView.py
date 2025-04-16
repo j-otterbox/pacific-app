@@ -1,18 +1,15 @@
 import dearpygui.dearpygui as dpg
-from Views.ProjectFormView import ProjectFormView
 from collections.abc import Callable
 
 class DashboardPageView():
     def __init__(self):
-        self._project_form = ProjectFormView()
-
         with dpg.stage() as self._stage_id:
             with dpg.group(horizontal=True):
                 with dpg.child_window(height=-1, width=325, menubar=True):
                     with dpg.menu_bar():
                         with dpg.menu(label="Project Explorer"):
                             self._new_project_menu_item = dpg.add_menu_item(label="New Project")
-                    
+    
                     with dpg.child_window(border=False) as self._projects_list:
                         pass # projects from database go here
 

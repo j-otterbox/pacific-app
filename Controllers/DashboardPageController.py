@@ -1,14 +1,15 @@
 import constants as c
-from Modules.EventManager import EventManager
+from Models.DashboardPageModel import DashboardPageModel
 from Views.DashboardPageView import DashboardPageView
+from Modules.EventManager import EventManager
 from Controllers.ProjectFormController import ProjectFormController
-from Modules.GuiManager import Modal
-
+from Modules.GuiManager import Modal, ContentWindow
 
 class DashboardPageController:
     def __init__(self):
-        self.events = EventManager()
+        self._model = DashboardPageModel()
         self._view = DashboardPageView()
+        self.events = EventManager()
     
         self._view.set_new_project_menu_item_callback(self._new_project_menu_item_handler)
 
@@ -25,9 +26,14 @@ class DashboardPageController:
 
         if event["type"] == "login_success":
             print(f"username '{data["username"]}' has logged in.")
+            ContentWindow.clear()
             self._view.render(parent=c.CONTENT_WINDOW)
             
-        if event["type"] == "new_project_created":
+        elif event["type"] == "new_project_created":
             self.events.emit(event)
+
+        elif event["type"] == "close_project":
+            ContentWindow.clear()
+            self._view.render(c.CONTENT_WINDOW)
 
             # a project list item with the data from the new item
