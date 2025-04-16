@@ -11,9 +11,8 @@ class ProjectFormController:
 
         self._view.set_create_btn_callback(self._create_btn_click_handler)
         self._view.set_cancel_btn_callback(self._cancel_btn_click_handler)
-
-    def set_parent(self, parent:int|str):
-        self._parent = parent
+        self._view.set_manage_pms_btn_callback(self._manage_pms_btn_click_handler)
+        self._view.set_manage_gcs_btn_callback(self._manage_gcs_btn_click_handler)
         
     # complete this function
     def _create_btn_click_handler(self):
@@ -41,12 +40,15 @@ class ProjectFormController:
                 if value == "":
                     self._view.highlight_input(key)
 
+    def _manage_pms_btn_click_handler(self):
+        print("manage project managers")
+
+    def _manage_gcs_btn_click_handler(self):
+        print("manage gen contractors")
+
     def _cancel_btn_click_handler(self):
         Modal.hide()
         Modal.clear()
 
     def get_stage_id(self):
         return self._view._stage_id
-
-    def render(self) -> None:
-        self._view.render(self._parent)

@@ -1,11 +1,8 @@
 import dearpygui.dearpygui as dpg
-from Modules.Database import Database
-
 from collections.abc import Callable
 
 class ProjectFormView:
     def __init__(self):
-        db = Database()
         self._red = (220,53,69)
         self._white = (255,255,255)
 
@@ -17,18 +14,18 @@ class ProjectFormView:
             with dpg.group(horizontal=True):
                 self._pm_combo_label = dpg.add_text("PM", indent=28)
                 pm_names = []
-                for pm in db.get_all_project_mgrs():
-                    pm_names.append(pm["name"])
+                # for pm in db.get_all_project_mgrs():
+                #     pm_names.append(pm["name"])
                 self._pm_combo = dpg.add_combo(pm_names, default_value="", width=184)
-                dpg.add_button(label="Manage PMs", callback=self._manage_pms_btn_click_handler)
+                self._manage_pms_btn = dpg.add_button(label="Manage PMs")
 
             with dpg.group(horizontal=True):
                 self._gc_combo_label = dpg.add_text("GC", indent=28)
                 gc_names = []
-                for gc in db.get_all_gen_contractors():
-                    gc_names.append(gc["name"])
+                # for gc in db.get_all_gen_contractors():
+                #     gc_names.append(gc["name"])
                 self._gc_combo = dpg.add_combo(gc_names, default_value="", width=184)
-                dpg.add_button(label="Manage GCs", callback=self._manage_gcs_btn_click_handler)
+                self._manage_gcs_btn = dpg.add_button(label="Manage GCs")
 
             with dpg.group(horizontal=True):
                 self._name_input_label = dpg.add_text("Name", indent=14)
@@ -55,6 +52,12 @@ class ProjectFormView:
     def set_cancel_btn_callback(self, callback:Callable):
         dpg.set_item_callback(self._cancel_btn, callback)
 
+    def set_manage_pms_btn_callback(self, callback:Callable):
+        dpg.set_item_callback(self._manage_pms_btn, )
+
+    def set_manage_gcs_btn_callback(self, callback:Callable):
+        dpg.set_item_callback(self._manage_gcs_btn)
+
     def set_feedback_text(self, text:str):
         dpg.set_value(self._feedback_text, text)
 
@@ -78,15 +81,7 @@ class ProjectFormView:
             case "name":   label = self._name_input_label
         dpg.configure_item(label, color=self._red)
 
-    def _manage_pms_btn_click_handler(self):
-        pass
-        # self._manager_form.set_mode("PM")
-        # self._manager_form.render(self._parent)
 
-    def _manage_gcs_btn_click_handler(self):
-        pass
-        # self._manager_form.set_mode("GC")
-        # self._manager_form.render(self._parent)
         
     def _update_pm_combo(self):
         pm_names = []
