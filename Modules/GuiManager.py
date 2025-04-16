@@ -14,15 +14,24 @@ class Modal():
         pass
 
     @staticmethod
+    def show():
+        dpg.show_item(c.MODAL)
+        
+    @staticmethod
+    def hide():
+        dpg.hide_item(c.MODAL)
+
+    @staticmethod
     def set_title(title:str):
         dpg.set_item_label(c.MODAL, title)
 
     @staticmethod
-    def set_content(stage:int|str):
+    def set_content(stage_id:int|str):
         dpg.push_container_stack(c.MODAL)
-        dpg.unstage(stage)
+        dpg.unstage(stage_id)
         dpg.pop_container_stack()
+        dpg.delete_item(stage_id)
 
     @staticmethod
-    def clear(self):
+    def clear():
         dpg.delete_item(c.MODAL, children_only=True)

@@ -232,8 +232,8 @@ def _create_tables(conn:sqlite3.Connection):
 
 def _create_admin_user(conn:sqlite3.Connection):
     cursor = conn.cursor()
-    username=get_key("ADMIN_USERNAME")
-    pass_hash = get_key("ADMIN_PASS_HASH")
+    username=get_key(".env", "ADMIN_USERNAME")
+    pass_hash = get_key(".env", "ADMIN_PASS_HASH")
     cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
     conn.commit()
 

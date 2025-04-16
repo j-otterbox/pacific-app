@@ -39,7 +39,7 @@ class ProjectFormView:
             
             with dpg.group(horizontal=True, indent=198):
                 self._create_btn = dpg.add_button(label="Create")
-                self._cancel_btn = dpg.add_button(label="Cancel", callback=self._cancel_btn_handler)
+                self._cancel_btn = dpg.add_button(label="Cancel")
 
     def get_form_data(self) -> dict[str]:
         return {
@@ -51,6 +51,9 @@ class ProjectFormView:
 
     def set_create_btn_callback(self, callback:Callable):
         dpg.set_item_callback(self._create_btn, callback)
+
+    def set_cancel_btn_callback(self, callback:Callable):
+        dpg.set_item_callback(self._cancel_btn, callback)
 
     def set_feedback_text(self, text:str):
         dpg.set_value(self._feedback_text, text)
@@ -85,9 +88,6 @@ class ProjectFormView:
         # self._manager_form.set_mode("GC")
         # self._manager_form.render(self._parent)
         
-    def _cancel_btn_handler(self):
-        dpg.hide_item(self._parent)        
-
     def _update_pm_combo(self):
         pm_names = []
         for pm in self._db.get_all_project_mgrs():

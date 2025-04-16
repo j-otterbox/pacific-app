@@ -1,6 +1,7 @@
 from Models.ProjectModel import ProjectModel
 from Views.ProjectFormView import ProjectFormView
 from Modules.EventManager import EventManager
+from Modules.GuiManager import Modal
 
 class ProjectFormController:
     def __init__(self):
@@ -9,6 +10,7 @@ class ProjectFormController:
         self.events = EventManager()
 
         self._view.set_create_btn_callback(self._create_btn_click_handler)
+        self._view.set_cancel_btn_callback(self._cancel_btn_click_handler)
 
     def set_parent(self, parent:int|str):
         self._parent = parent
@@ -20,7 +22,12 @@ class ProjectFormController:
             print("form validated")
             resp = self._model.create_project(form_data)
             if resp["success"]:
-                self.events.emit("new_project_created", resp)
+                self.events.emit({
+                    "type": "new_project_created",
+                    "data": resp
+                })
+                Modal.hide()
+                Modal.clear()
             else:
                 if resp["msg"] == "job_id conflict":
                     self._view.set_feedback_text("A project already exists with the given ID.")
@@ -34,6 +41,13 @@ class ProjectFormController:
                 print(key, value)
                 if value == "":
                     self._view.highlight_input(key)
+
+    def _cancel_btn_click_handler(self):
+        Modal.hide()
+        Modal.clear()
+
+    def get_stage_id(self):
+        return self._view._stage_id
 
     def render(self) -> None:
         print("render proj form")

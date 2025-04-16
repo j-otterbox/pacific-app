@@ -22,9 +22,11 @@ class LoginPageController:
             self._view.render_welcome_msg(username)
             sleep(1)
             ContentWindow.clear()
-            self.events.emit("login_success", {
-                "event_type": "login_success",
-                "username": username
+            self.events.emit({
+                "type": "login_success",
+                "data": {
+                    "username": username
+                }  
             })
         else:
             self._view.show_invalid_login_msg()

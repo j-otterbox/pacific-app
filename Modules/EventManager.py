@@ -11,8 +11,8 @@ class EventManager:
     def unsubcribe(self, event_type:str, listener):
         self._listeners[event_type].remove(listener)
 
-    def emit(self, event_type:str, event_data:dict):
-        print(f"emitting {event_type} event...")
-        for listener in self._listeners[event_type]:
-            listener.update(event_data) # every controller has a generic update function specifically for events
+    def emit(self, event:dict):
+        print(f"emitting {event["type"]} event...")
+        for listener in self._listeners[event["type"]]:
+            listener.update(event) # every controller has a generic update function specifically for events
     

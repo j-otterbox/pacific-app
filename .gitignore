@@ -164,3 +164,4 @@ cython_debug/
 # custom
 dev_notes.txt
 *.db
+*.db-journal
