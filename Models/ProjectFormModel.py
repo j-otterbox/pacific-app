@@ -4,16 +4,18 @@ class ProjectFormModel:
     def __init__(self):
         self._db = Database()
 
-    def get_proj_managers(self):
+    def get_proj_managers(self, names_only:bool=False):
         proj_managers = self._db.get_all_proj_managers()
-        for idx, proj_manager in enumerate(proj_managers):
-            proj_managers[idx] = proj_manager["name"]
+        if names_only:
+            for idx, proj_manager in enumerate(proj_managers):
+                proj_managers[idx] = proj_manager["name"]
         return proj_managers 
 
-    def get_gen_contractors(self):
+    def get_gen_contractors(self, names_only:bool=False):
         gen_contractors = self._db.get_all_gen_contractors()
-        for idx, gen_contractor  in enumerate(gen_contractors):
-            gen_contractors[idx] = gen_contractor["name"]
+        if names_only:
+            for idx, gen_contractor  in enumerate(gen_contractors):
+                gen_contractors[idx] = gen_contractor["name"]
         return gen_contractors
 
     def create_project(self, form_data:dict) -> dict:

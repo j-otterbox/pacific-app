@@ -9,8 +9,8 @@ class ProjectFormController:
         self._view = ProjectFormView()
         self.events = EventManager()
 
-        proj_managers  = self._model.get_proj_managers()
-        gen_contractors =  self._model.get_gen_contractors()
+        proj_managers  = self._model.get_proj_managers(names_only=True)
+        gen_contractors =  self._model.get_gen_contractors(names_only=True)
 
         self._view.set_proj_manager_combo_items(proj_managers)
         self._view.set_gen_contractor_combo_items(gen_contractors)
