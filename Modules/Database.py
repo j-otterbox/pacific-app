@@ -88,7 +88,7 @@ class Database:
             user_list[idx] = self._user_factory(user)
         return user_list
 
-    def get_all_project_mgrs(self):
+    def get_all_proj_managers(self):
         resp = self._cursor.execute("SELECT rowid, * FROM project_managers ORDER BY name")
         pm_list = resp.fetchall()
         for idx, pm in enumerate(pm_list):

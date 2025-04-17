@@ -9,10 +9,16 @@ class ProjectFormController:
         self._view = ProjectFormView()
         self.events = EventManager()
 
+        proj_managers  = self._model.get_proj_managers()
+        gen_contractors =  self._model.get_gen_contractors()
+
+        self._view.set_proj_manager_combo_items(proj_managers)
+        self._view.set_gen_contractor_combo_items(gen_contractors)
+        
         self._view.set_create_btn_callback(self._create_btn_click_handler)
-        self._view.set_cancel_btn_callback(self._cancel_btn_click_handler)
         self._view.set_manage_pms_btn_callback(self._manage_pms_btn_click_handler)
         self._view.set_manage_gcs_btn_callback(self._manage_gcs_btn_click_handler)
+        self._view.set_cancel_btn_callback(self._cancel_btn_click_handler)
         
     # complete this function
     def _create_btn_click_handler(self):
