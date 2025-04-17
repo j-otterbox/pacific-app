@@ -15,13 +15,13 @@ class Database:
         self._cursor.execute("INSERT INTO users (username, pass_hash) VALUES (?, ?)", (username, pass_hash,))
         self._conn.commit()
 
-    def create_project_mgr(self, name) -> dict:
+    def create_PM(self, name) -> dict:
         """ Create a new project mananger under the given name, returns new record on success. """
         resp = self._create_response()
         try:
             self._cursor.execute("INSERT INTO project_managers (name) VALUES (?)", (name))
             query_results = self._cursor.fetchall()
-            query_results[0] = self._pm_factory(query_results[0])
+            query_results[0] = self._PM_factory(query_results[0])
             self._conn.commit()
             resp["success"] = True
             resp["data"] = query_results
@@ -32,7 +32,7 @@ class Database:
                 resp["msg"] = "There is already a PM that goes by this name."
         return resp
 
-    def create_gen_contractor(self, name) -> dict:
+    def create_GC(self, name) -> dict:
         """
             Creates a new general contractor under the given name, returns new record on success.
         """
@@ -40,7 +40,7 @@ class Database:
         try:
             self._cursor.execute("INSERT INTO general_contractors (name) VALUES (?) RETURNING rowid, *", (name,))
             query_results = self._cursor.fetchall()
-            query_results[0] = self._gc_factory(query_results[0])
+            query_results[0] = self._GC_factory(query_results[0])
             self._conn.commit()
             resp["success"] = True
             resp["data"] = query_results
@@ -88,18 +88,18 @@ class Database:
             user_list[idx] = self._user_factory(user)
         return user_list
 
-    def get_all_proj_managers(self):
+    def get_all_PMs(self):
         resp = self._cursor.execute("SELECT rowid, * FROM project_managers ORDER BY name")
         pm_list = resp.fetchall()
         for idx, pm in enumerate(pm_list):
-            pm_list[idx] = self._pm_factory(pm)
+            pm_list[idx] = self._PM_factory(pm)
         return pm_list
 
-    def get_all_gen_contractors(self):
+    def get_all_GCs(self):
         resp = self._cursor.execute("SELECT rowid, * FROM general_contractors ORDER BY name")
         gc_list = resp.fetchall()
         for idx, gc in enumerate(gc_list):
-            gc_list[idx] = self._gc_factory(gc)
+            gc_list[idx] = self._GC_factory(gc)
         return gc_list
 
     def get_all_projects(self):
@@ -113,11 +113,11 @@ class Database:
         self._cursor.execute("UPDATE users SET pass_hash=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (pass_hash, id))
         self._conn.commit()
 
-    def update_pm(self, id, name):
+    def update_PM(self, id, name):
         self._cursor.execute("UPDATE project_managers SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
         self._conn.commit()
 
-    def update_gc(self, id:int|str, name:str):
+    def update_GC(self, id:int|str, name:str):
         self._cursor.execute("UPDATE general_contractors SET name=(?), modified_date=CURRENT_TIMESTAMP WHERE rowid=(?)", (name, id))
         self._conn.commit()
 
@@ -125,11 +125,11 @@ class Database:
         self._cursor.execute("DELETE FROM users WHERE rowid=(?)", (id))
         self._conn.commit()
 
-    def delete_pm(self, id):
+    def delete_PM(self, id):
         self._cursor.execute("DELETE FROM project_managers WHERE rowid=(?)", (id,))
         self._conn.commit()
 
-    def delete_gen_contractor(self, id:int|str):
+    def delete_GC(self, id:int|str):
         self._cursor.execute("DELETE FROM general_contractors WHERE rowid=(?)", (id,))
         self._conn.commit()
 
@@ -149,7 +149,7 @@ class Database:
                 "modified_date": user[4]
         }
 
-    def _pm_factory(self, pm:tuple):
+    def _PM_factory(self, pm:tuple):
         return {
             "id": pm[0],
             "name": pm[1],
@@ -157,7 +157,7 @@ class Database:
             "modified_date": pm[3]
         }
 
-    def _gc_factory(self, gc:tuple):
+    def _GC_factory(self, gc:tuple):
         return {
             "id": gc[0],
             "name": gc[1],
