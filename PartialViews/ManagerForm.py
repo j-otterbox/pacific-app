@@ -1,8 +1,8 @@
 import dearpygui.dearpygui as dpg
 from Modules.Database import Database
 from collections.abc import Callable
-from Components.InputTextForm import InputTextForm
-from Components.ConfirmationForm import ConfirmationForm
+from PartialViews.InputTextForm import InputTextForm
+from PartialViews.ConfirmationForm import ConfirmationForm
 
 class ManagerForm:
     def __init__(self):
