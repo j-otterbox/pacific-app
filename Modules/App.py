@@ -1,9 +1,16 @@
+
+
+from os.path import exists
 import dearpygui.dearpygui as dpg
+from dotenv import get_key
+if not exists(get_key(".env", "DATABASE_NAME")):
+    from Modules.Database import init_database
+    init_database()
 import constants as c
 from Controllers.LoginPageController import LoginPageController
 from Controllers.DashboardPageController import DashboardPageController
 from Controllers.ProjectPageController import ProjectPageController
-from Components.MainHeader import MainHeader
+from PartialViews.MainHeader import MainHeader
 
 class App:
     def __init__(self, title:str):

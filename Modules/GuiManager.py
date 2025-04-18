@@ -14,6 +14,10 @@ class Modal():
         pass
 
     @staticmethod
+    def get_tag(self):
+        return c.MODAL
+
+    @staticmethod
     def show():
         dpg.show_item(c.MODAL)
         
