@@ -49,10 +49,14 @@ class LoginPageView():
         dpg.set_value(self._feedback_text_id, "username and password combination incorrect.")
         dpg.show_item(self._feedback_text_row_id)
 
-    def render(self, parent:int|str) -> None:
+    def render(self) -> None:
+        """ 
+            Configures viewport before rendering the component.
+            Pages are always rendered as a child of the content window, so that's hard-coded.
+        """
         dpg.set_viewport_width(405)
         dpg.set_viewport_height(200)
         dpg.set_viewport_resizable(False)   
-        dpg.push_container_stack(parent)
+        dpg.push_container_stack(c.CONTENT_WINDOW)
         dpg.unstage(self._stage_id)
         dpg.pop_container_stack()

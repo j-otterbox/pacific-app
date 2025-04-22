@@ -17,9 +17,6 @@ class DashboardPageView():
                     with dpg.menu_bar():
                         dpg.add_menu(label="What's going on...")
 
-            # with dpg.window(width=322, autosize=True, min_size=[322, 80], modal=True, no_collapse=True, on_close=self.clear_modal, show=False) as self._modal:
-            #     pass
-
     def set_new_project_menu_item_callback(self, callback:Callable):
         dpg.set_item_callback(self._new_project_menu_item, callback)
 

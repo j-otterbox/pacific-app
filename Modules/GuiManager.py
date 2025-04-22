@@ -1,4 +1,5 @@
 import dearpygui.dearpygui as dpg
+from collections.abc import Callable
 import constants as c
 
 class ContentWindow:
@@ -34,8 +35,15 @@ class Modal():
         dpg.push_container_stack(c.MODAL)
         dpg.unstage(stage_id)
         dpg.pop_container_stack()
-        dpg.delete_item(stage_id)
 
     @staticmethod
     def clear():
         dpg.delete_item(c.MODAL, children_only=True)
+
+    @staticmethod 
+    def delete_on_close(stages:list[int]):
+        def on_close():
+            dpg.delete_item(c.MODAL, children_only=True)
+            for item in stages:
+                dpg.delete_item(item)
+        dpg.configure_item(c.MODAL, on_close=on_close)

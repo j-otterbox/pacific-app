@@ -4,7 +4,7 @@ from Views.ProjectPageView import ProjectPageView
 from Modules.EventManager import EventManager
 from Modules.GuiManager import ContentWindow
 
-class ProjectPageController:
+class ProjectPage:
     def __init__(self):
         self._model = ProjectPageModel()
         self._view = ProjectPageView()
