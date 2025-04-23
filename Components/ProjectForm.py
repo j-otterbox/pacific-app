@@ -6,18 +6,18 @@ from Modules.EventManager import EventManager
 from Modules.GuiManager import Modal
 
 class ProjectForm:
-    def __init__(self):
+    def __init__(self, parent:int|str):
         self.events = EventManager()
         self._project_form_model = ProjectFormModel()
-        self._project_form_view = ProjectFormView()
+        self._project_form_view = ProjectFormView(parent)
         self._list_editor_view = ListEditorView()
         self._text_input_form_view = TextInputFormView()
         
         GCs = self._project_form_model.get_GCs(names_only=True)
         PMs = self._project_form_model.get_PMs(names_only=True)
 
-        self._project_form_view.set_GC_combo_items(GCs)
-        self._project_form_view.set_PM_combo_items(PMs)
+        self._project_form_view.set_GCs(GCs)
+        self._project_form_view.set_PMs(PMs)
                 
         self._project_form_view.set_callbacks({
             "edit_GCs_btn": self._edit_GCs_btn_click_handler,
@@ -92,12 +92,5 @@ class ProjectForm:
         Modal.hide()
         Modal.clear()
 
-    def get_stage_id(self):
-        return self._project_form_view._stage_id
-    
-    def get_stages(self):
-        return [
-            self._project_form_view._stage_id,
-            self._list_editor_view._stage_id,
-            self._text_input_form_view._stage_id
-        ]
+    def render(self):
+        self._project_form_view.render()

@@ -4,20 +4,25 @@ import dearpygui.dearpygui as dpg
 import constants as c
 
 class ProjectFormView:
-    def __init__(self):
-        with dpg.stage() as self._stage_id:
+    def __init__(self, parent:str):
+        self._parent = parent
+        self._GCs = []
+        self._PMs = []
+
+    def render(self):
+        with dpg.stage() as id:
             with dpg.group(horizontal=True):
                 self._job_ID_input_label = dpg.add_text("Job ID")
                 self._job_ID_text_input = dpg.add_input_text(decimal=True, width=55)
 
             with dpg.group(horizontal=True):
                 self._GC_combo_label = dpg.add_text("GC", indent=28)
-                self._GC_combo = dpg.add_combo(default_value="", width=184)
+                self._GC_combo = dpg.add_combo(items=self._GCs, default_value="", width=184)
                 self._edit_GCs_btn = dpg.add_button(label="Manage GCs")
 
             with dpg.group(horizontal=True):
                 self._PM_combo_label = dpg.add_text("PM", indent=28)
-                self._PM_combo = dpg.add_combo(default_value="", width=184)
+                self._PM_combo = dpg.add_combo(items=self._PMs, default_value="", width=184)
                 self._edit_PMs_btn = dpg.add_button(label="Manage PMs")
 
             with dpg.group(horizontal=True):
@@ -35,6 +40,11 @@ class ProjectFormView:
                 self._create_btn = dpg.add_button(label="Create")
                 self._cancel_btn = dpg.add_button(label="Cancel")
 
+        dpg.push_container_stack(self._parent)
+        dpg.unstage(id)
+        dpg.pop_container_stack()
+        dpg.delete_item(id)
+
     def get_values(self) -> dict[str]:
         return {
             "job_id": dpg.get_value(self._job_ID_text_input),
@@ -49,11 +59,11 @@ class ProjectFormView:
         dpg.set_item_callback(self._create_btn, callbacks["create_btn"])
         dpg.set_item_callback(self._cancel_btn, callbacks["cancel_btn"])
 
-    def set_GC_combo_items(self, items:list) -> None:
-        dpg.configure_item(self._GC_combo, items=items)
+    def set_GCs(self, GCs:list) -> None:
+        self._GCs = GCs
 
-    def set_PM_combo_items(self, items:list) -> None:
-        dpg.configure_item(self._PM_combo, items=items)
+    def set_PMs(self, PMs:list) -> None:
+        self._GCs = PMs
 
     def set_feedback_text(self, text:str):
         dpg.set_value(self._feedback_text, text)
@@ -86,11 +96,6 @@ class ProjectFormView:
             (self._name_input_label, self._name_text_input)
         ]
 
-    def render(self, parent:int|str) -> None:
-        dpg.push_container_stack(parent)
-        dpg.unstage(self._stage_id)
-        dpg.pop_container_stack()
-    
     # def __render_gcm(self):
     #     x = int((dpg.get_viewport_width()/2) - (self.__width/2))
     #     y = int((dpg.get_viewport_height()/2) - (235/2))

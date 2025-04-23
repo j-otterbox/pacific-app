@@ -3,7 +3,7 @@ from Models.DashboardPageModel import DashboardPageModel
 from Views.DashboardPageView import DashboardPageView
 from Modules.EventManager import EventManager
 from Components.ProjectForm import ProjectForm
-from Modules.GuiManager import Modal, ContentWindow
+from Modules.GuiManager import Modal, ContentWindow, Item
 
 class DashboardPage:
     def __init__(self):
@@ -14,14 +14,13 @@ class DashboardPage:
         self._view.set_new_project_menu_item_callback(self._new_project_menu_item_handler)
 
     def _new_project_menu_item_handler(self):
-        project_form = ProjectForm()
+        
+        
+        Item.delete_children(c.MODAL)
+        Item.set_label(c.MODAL, "Create New Project")
+        project_form = ProjectForm(parent=c.MODAL)
         project_form.events.subscribe("new_project_created", self)
-        stage_id = project_form.get_stage_id()
-        stages = project_form.get_stages()
-        Modal.delete_on_close(stages)
-        Modal.set_title("Create New Project")
-        Modal.set_content(stage_id)
-        Modal.show()
+        project_form.render()
 
     def update(self, event:dict):
         data = event["data"]

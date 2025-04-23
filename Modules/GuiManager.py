@@ -47,3 +47,15 @@ class Modal():
             for item in stages:
                 dpg.delete_item(item)
         dpg.configure_item(c.MODAL, on_close=on_close)
+
+class Item:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def delete_children(item:int|str):
+        dpg.delete_item(item, children_only=True)
+
+    @staticmethod
+    def set_label(item:int|str, label:str):
+        dpg.set_item_label(item, label)
